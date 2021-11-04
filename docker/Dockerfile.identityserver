@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0 as build
+RUN mkdir src
+COPY src/ src/
+WORKDIR src
+RUN dotnet publish -c Release -o published
+
+FROM mcr.microsoft.com/dotnet/aspnet:3.1
+RUN mkdir /app
+WORKDIR app
+COPY --from=build /src/published ./
+ENTRYPOINT ["dotnet", "/app/IdentityServer.dll" ]
