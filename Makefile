@@ -17,3 +17,9 @@ stop:
 
 logs: 
 	docker logs identity_server
+
+terraform_docker:
+	docker build . -f docker/Dockerfile.terraform -t booking_terraform:local
+
+terraform-shell: terraform_docker
+	docker run -ti --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local bash

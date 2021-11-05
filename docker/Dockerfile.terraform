@@ -1,0 +1,58 @@
+from ubuntu:20.04 as buildenv-tf
+# Download terraform in buildenv-tf temporary/discard docker image
+RUN apt update && apt upgrade -y
+RUN apt install wget -y
+RUN apt install unzip curl -y
+
+# install terraform 13
+RUN mkdir /terraform13
+WORKDIR /terraform13
+RUN wget https://releases.hashicorp.com/terraform/0.13.6/terraform_0.13.6_linux_amd64.zip
+RUN unzip terraform_0.13.6_linux_amd64.zip
+
+# download aws cli v2
+RUN mkdir /awsv2
+WORKDIR /awsv2
+RUN wget https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip 
+RUN unzip awscli-exe-linux-x86_64.zip  
+
+from ubuntu:20.04 
+ENV DEBIAN_FRONTEND="noninteractive" TX="Europe/Copenhagen"
+RUN apt update && apt upgrade --fix-missing -y
+RUN apt install ca-certificates git python3-pip dos2unix vim iputils-ping dnsutils groff -y
+RUN useradd -m -d /home/terraform terraform 
+RUN mkdir ~/.aws
+
+RUN apt-get update --fix-missing -y
+RUN apt install -y curl 
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt install -y nodejs
+RUN apt install -y unzip
+RUN apt install -y jq 
+
+# Install aws cli v2 in docker image
+RUN mkdir /tmp/awsv2
+WORKDIR /tmp/awsv2
+COPY --from=buildenv-tf awsv2/ /tmp/awsv2
+RUN ./aws/install
+
+WORKDIR /home/terraform 
+RUN mkdir bin
+
+# Copy terraform binaries
+COPY --from=buildenv-tf terraform13/terraform /usr/bin/terraform
+
+# Copy utility scripts & change ownership
+#COPY scripts/bashrc.sh /home/terraform/.bashrc
+#COPY scripts/.vimrc /home/terraform/.vimrc
+#COPY scripts/* /home/terraform/bin/
+#COPY README.md .gitconfig* /home/terraform/
+RUN chown -R terraform:terraform /home/terraform/bin
+#RUN chmod u+x bin/*
+#RUN dos2unix bin/*
+#RUN chmod u+x /home/terraform/.bashrc
+#RUN chmod u+x /home/terraform/.vimrc
+#RUN dos2unix .vimrc .bashrc
+
+# Switch to terraform user
+USER terraform
