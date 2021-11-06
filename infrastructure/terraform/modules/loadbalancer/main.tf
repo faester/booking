@@ -1,4 +1,4 @@
-resource "aws_lb" "lb" {
+resource aws_lb lb {
   name               = var.name
   internal           = false
   load_balancer_type = "application"
@@ -12,7 +12,7 @@ resource "aws_lb" "lb" {
   }
 }
 
-data "aws_elb_service_account" "main" {}
+data aws_elb_service_account main {}
 
 
 resource aws_security_group lb_sg {
@@ -113,7 +113,7 @@ POLICY
   }
 }
 
-resource "aws_acm_certificate" "cert" {
+resource aws_acm_certificate cert {
   domain_name       = "*.${var.root_domain}"
   validation_method = "DNS"
 
@@ -122,7 +122,7 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "aws_lb_listener" "http_to_https" {
+resource aws_lb_listener http_to_https {
   load_balancer_arn = aws_lb.lb.arn
   port              = "80"
   protocol          = "HTTP"
@@ -138,7 +138,7 @@ resource "aws_lb_listener" "http_to_https" {
   }
 }
 
-resource "aws_lb_listener" "front_end" {
+resource aws_lb_listener front_end {
   load_balancer_arn = aws_lb.lb.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -156,7 +156,7 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-resource "aws_lb_listener_rule" "validate" {
+resource aws_lb_listener_rule validate {
   listener_arn = aws_lb_listener.front_end.arn
 
   action {

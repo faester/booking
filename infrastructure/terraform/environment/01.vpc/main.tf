@@ -66,7 +66,7 @@ resource aws_internet_gateway gw {
   }
 }
 
-resource "aws_route_table" "booking_public" {
+resource aws_route_table booking_public {
   vpc_id = aws_vpc.booking.id
 
 
