@@ -26,27 +26,27 @@ provider "aws" {
   }
 }
 
-resource "aws_subnet" "back-a" {
-  vpc_id            = aws_vpc.front.id
+resource "aws_subnet" "booking-a" {
+  vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "eu-west-1a"
 
   tags = {
-    Name = "Back"
+    Name = "booking-a"
   }
 }
 
-resource "aws_subnet" "back-b" {
-  vpc_id            = aws_vpc.front.id
+resource "aws_subnet" "booking-b" {
+  vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-1b"
 
   tags = {
-    Name = "Back"
+    Name = "booking-b"
   }
 }
 
-resource "aws_vpc" "front" {
+resource "aws_vpc" "booking" {
   cidr_block = "10.0.0.0/23"
 }
 
