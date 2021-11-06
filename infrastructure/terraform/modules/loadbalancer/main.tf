@@ -78,3 +78,57 @@ resource "aws_acm_certificate" "cert" {
     create_before_destroy = true
   }
 }
+
+resource "aws_lb_listener" "http_to_https" {
+  load_balancer_arn = aws_lb.lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_302"
+    }
+  }
+}
+
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.cert.arn
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Default response from front_end listener on lb"
+      status_code  = 200
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "validate" {
+  listener_arn = aws_lb_listener.front_end.arn
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = var.root_domain
+      status_code  = "200"
+    }
+  }
+
+  condition {
+    host_header {
+      values = ["dns-aws-validate.${var.root_domain}"]
+    }
+  }
+}
