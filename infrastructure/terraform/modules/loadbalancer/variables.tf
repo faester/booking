@@ -5,3 +5,11 @@ variable subnet_ids {
 variable name {
   type = string
 }
+
+variable root_domain {
+  type = string
+}
+
+variable vpc_id {
+  type = string
+}

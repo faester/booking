@@ -116,7 +116,9 @@ resource aws_ecs_cluster booking {
 }
 
 module lb {
-  source     = "../../modules/loadbalancer"
-  subnet_ids = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
-  name       = "booking-public-lb"
+  source      = "../../modules/loadbalancer"
+  subnet_ids  = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
+  name        = "booking-public-lb"
+  root_domain = "mfaester.dk"
+  vpc_id      = data.aws_subnet.subnet_a.vpc_id
 }

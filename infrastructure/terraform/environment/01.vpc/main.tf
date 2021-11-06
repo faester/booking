@@ -54,3 +54,12 @@ module ecr {
   source       = "../../modules/ecr"
   repositories = local.ecr_repositories
 }
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.booking.id
+
+  tags = {
+    Name = "main"
+  }
+}
+

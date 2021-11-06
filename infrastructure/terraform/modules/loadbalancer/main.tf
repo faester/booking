@@ -14,6 +14,11 @@ resource "aws_lb" "lb" {
   }
 }
 
+
+resource aws_security_group lb_sg {
+  vpc_id = var.vpc_id
+}
+
 resource aws_s3_bucket lb_logs {
   bucket = "lb-logs-${var.name}"
 
