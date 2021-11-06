@@ -26,7 +26,7 @@ provider "aws" {
   }
 }
 
-resource "aws_subnet" "booking-a" {
+resource aws_subnet booking-a {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "eu-west-1a"
@@ -36,7 +36,7 @@ resource "aws_subnet" "booking-a" {
   }
 }
 
-resource "aws_subnet" "booking-b" {
+resource aws_subnet booking-b {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-1b"
@@ -46,10 +46,10 @@ resource "aws_subnet" "booking-b" {
   }
 }
 
-resource "aws_vpc" "booking" {
+resource aws_vpc booking {
   cidr_block = "10.0.0.0/23"
 
-  enable_dns_support = true
+  enable_dns_support   = true
   enable_dns_hostnames = true
 }
 
@@ -58,7 +58,7 @@ module ecr {
   repositories = local.ecr_repositories
 }
 
-resource "aws_internet_gateway" "gw" {
+resource aws_internet_gateway gw {
   vpc_id = aws_vpc.booking.id
 
   tags = {
@@ -66,3 +66,26 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+resource "aws_route_table" "booking_public" {
+  vpc_id = aws_vpc.booking.id
+
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "igw_to_subnets_booking"
+  }
+}
+
+resource aws_route_table_association public_subnet_a {
+  subnet_id      = aws_subnet.booking-a.id
+  route_table_id = aws_route_table.booking_public.id
+}
+
+resource aws_route_table_association public_subnet_b {
+  subnet_id      = aws_subnet.booking-b.id
+  route_table_id = aws_route_table.booking_public.id
+}
