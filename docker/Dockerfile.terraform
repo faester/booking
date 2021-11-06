@@ -43,16 +43,11 @@ RUN mkdir bin
 COPY --from=buildenv-tf terraform13/terraform /usr/bin/terraform
 
 # Copy utility scripts & change ownership
-#COPY scripts/bashrc.sh /home/terraform/.bashrc
-#COPY scripts/.vimrc /home/terraform/.vimrc
-#COPY scripts/* /home/terraform/bin/
-#COPY README.md .gitconfig* /home/terraform/
 RUN chown -R terraform:terraform /home/terraform/bin
-#RUN chmod u+x bin/*
-#RUN dos2unix bin/*
-#RUN chmod u+x /home/terraform/.bashrc
-#RUN chmod u+x /home/terraform/.vimrc
-#RUN dos2unix .vimrc .bashrc
 
 # Switch to terraform user
 USER terraform
+RUN git config --global user.email "faester@gmail.com"
+RUN git config --global user.name "Morten Hjorth Fæster"
+
+
