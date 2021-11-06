@@ -106,12 +106,17 @@ resource "aws_iam_service_linked_role" "ecs" {
 }
 
 resource aws_ecs_cluster booking {
-  name = "booking-main"
-
+  name               = "booking-main"
   capacity_providers = [aws_ecs_capacity_provider.booking.name]
 
   setting {
     name  = "containerInsights"
     value = "enabled"
   }
+}
+
+module lb {
+  source     = "../../modules/loadbalancer"
+  subnet_ids = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
+  name       = "booking-public-lb"
 }
