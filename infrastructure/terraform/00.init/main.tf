@@ -1,5 +1,10 @@
 terraform {
-  required_version = "~> 0.13.6"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
 }
 
 # Configure the AWS Provider
@@ -9,13 +14,20 @@ provider "aws" {
   profile = "mfaester"
 }
 
-terraform {
-  backend "s3" {
-    encrypt = true    
-    bucket = "mfaester-booking"
-    dynamodb_table = "terraform-state-lock-dynamo"
-    key    = "terraform.tfstate"
-    region = "us-east-1"
-  }
+resource aws_s3_bucket state_bucket {
+  bucket = "mfaester-booking-state"
+  acl    = "private"
 }
 
+resource aws_dynamodb_table state_locks {
+  name           = "mfaester-booking-state-locks"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
