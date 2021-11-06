@@ -1,3 +1,7 @@
+locals {
+  ecr_repositories = ["identity-server"]
+}
+
 terraform {
   required_version = "~> 0.13.6"
   backend "s3" {
@@ -44,4 +48,9 @@ resource "aws_subnet" "back-b" {
 
 resource "aws_vpc" "front" {
   cidr_block = "10.0.0.0/23"
+}
+
+module ecr {
+  source       = "../../modules/ecr"
+  repositories = local.ecr_repositories
 }
