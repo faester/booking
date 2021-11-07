@@ -76,16 +76,16 @@ resource aws_launch_template booking {
 }
 
 resource aws_autoscaling_group booking {
-  capacity_rebalance  = true
-  desired_capacity    = 0
-  max_size            = 6
-  min_size            = 0
-  vpc_zone_identifier = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
+  capacity_rebalance   = true
+  desired_capacity     = 0
+  max_size             = 6
+  min_size             = 0
+  vpc_zone_identifier  = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
   termination_policies = ["OldestInstance"]
 
-  health_check_type = "EC2"
+  health_check_type         = "EC2"
   health_check_grace_period = 300
-    
+
   enabled_metrics = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
 
 
@@ -143,7 +143,7 @@ resource aws_ecs_cluster booking {
   capacity_providers = [aws_ecs_capacity_provider.booking.name]
   default_capacity_provider_strategy {
     capacity_provider = aws_ecs_capacity_provider.booking.name
-    weight = 1
+    weight            = 1
   }
 
   setting {
