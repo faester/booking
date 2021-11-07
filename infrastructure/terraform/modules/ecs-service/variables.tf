@@ -19,7 +19,7 @@ variable docker_image {
 }
 
 variable listener_arn {
-  type = string
+  type    = string
   default = "latest"
 }
 
@@ -38,6 +38,6 @@ variable memory {
 }
 
 variable docker_tag {
-  type = string
+  type    = string
   default = "latest"
 }

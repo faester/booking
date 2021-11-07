@@ -37,9 +37,9 @@ module identity {
   vpc_id       = local.vpc_id
   cluster_id   = "booking-main"
 
-  root_domain = "mfaester.dk"
-  port        = 8000
-  subdomain   = "identity-server"
- listener_arn = "arn:aws:elasticloadbalancing:eu-west-1:539839626842:listener/app/booking-public-lb/aaeb45b1f270cbf7/46764fad2dd56422"
+  root_domain  = "mfaester.dk"
+  port         = 8000
+  subdomain    = "identity-server"
+  listener_arn = "arn:aws:elasticloadbalancing:eu-west-1:539839626842:listener/app/booking-public-lb/aaeb45b1f270cbf7/46764fad2dd56422"
 }
 

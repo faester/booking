@@ -1,5 +1,5 @@
 locals {
-  ecr_repositories = ["identity-server"]
+  ecr_repositories   = ["identity-server"]
   cluster_identifier = "booking-main"
 }
 
@@ -45,9 +45,34 @@ data aws_ssm_parameter ecs_ami {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
 }
 
+resource "aws_security_group" "ecs_cluster_member_sg" {
+  name        = "${local.cluster_identifier}-allow-outgoing"
+  description = "SG for cluster ec2 instances"
+  vpc_id      = data.aws_subnet.subnet_a.vpc_id
+
+  ingress {
+    description     = "Allow traffic on internally exposed ports"
+    from_port       = 8000
+    to_port         = 9999
+    protocol        = "tcp"
+    security_groups = [] #[module.lb.lb_sg_arn]
+  }
+
+  egress {
+    description = "Allow all outgoing traffic. - We should perhaps limit this later on."
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource aws_launch_template booking {
   name_prefix = "booking"
   image_id    = data.aws_ssm_parameter.ecs_ami.value
+
+  vpc_security_group_ids = [aws_security_group.ecs_cluster_member_sg.id]
+
 }
 
 resource aws_autoscaling_group booking {

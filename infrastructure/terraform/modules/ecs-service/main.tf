@@ -33,7 +33,7 @@ resource aws_ecs_service service {
     ignore_changes = [desired_count]
   }
 }
- 
+
 resource aws_iam_role_policy_attachment ecs_service {
   role       = aws_iam_role.service_role.name
   policy_arn = aws_iam_policy.ecs_role_policy.arn
@@ -65,11 +65,11 @@ resource aws_lb_target_group tg {
 }
 
 data "aws_iam_role" "ecs_role" {
-  name = "${var.cluster_id}-ecs-role" 
+  name = "${var.cluster_id}-ecs-role"
 }
 
 resource aws_iam_role service_role {
-	name = "ecs-${var.docker_image}-role"
+  name = "ecs-${var.docker_image}-role"
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
