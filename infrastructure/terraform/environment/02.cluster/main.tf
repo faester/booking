@@ -56,6 +56,7 @@ resource "aws_security_group" "ecs_cluster_member_sg" {
     to_port         = 9999
     protocol        = "tcp"
     security_groups = [] #[module.lb.lb_sg_arn]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
