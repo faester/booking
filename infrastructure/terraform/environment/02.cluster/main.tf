@@ -119,7 +119,7 @@ resource aws_autoscaling_group booking {
 }
 
 resource aws_ecs_capacity_provider booking {
-  name = "booking-main-capacity-procider"
+  name = "booking-main-capacity-provider"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.booking.arn
@@ -141,6 +141,10 @@ resource aws_iam_service_linked_role ecs {
 resource aws_ecs_cluster booking {
   name               = "booking-main"
   capacity_providers = [aws_ecs_capacity_provider.booking.name]
+  default_capacity_provider_strategy {
+    capacity_provider = aws_ecs_capacity_provider.booking.name
+    weight = 1
+  }
 
   setting {
     name  = "containerInsights"

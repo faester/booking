@@ -29,6 +29,11 @@ resource aws_ecs_service service {
     field = "cpu"
   }
 
+  capacity_provider_strategy {
+    capacity_provider = "${var.cluster_id}-capacity-provider"
+    weight = 1
+  }
+
   lifecycle {
     ignore_changes = [desired_count]
   }
