@@ -1,5 +1,5 @@
 locals {
-  ecr_repositories = ["identity-server"]
+  ecr_repositories = ["identityserver"]
   vpc_endpoints = ["ecs-agent",
     "ecs-telemetry",
     "ecs",

@@ -1,21 +1,66 @@
-
+locals {
+  full_image_name = "539839626842.dkr.ecr.eu-west-1.amazonaws.com/${var.docker_image}:${var.docker_tag}"
+}
 resource aws_ecs_task_definition service {
   family = "booking"
+  cpu    = 1024
+  memory = 2048
   container_definitions = jsonencode([
     {
       name      = "primary"
-      image     = "${var.docker_image}:${var.docker_tag}"
-      cpu       = var.cpu
-      memory    = var.memory
+      image     = local.full_image_name
       essential = true
       portMappings = [
         {
           containerPort = 80
-          hostPort      = var.port
+          hostPort      = 80
         }
       ]
     }
   ])
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  task_role_arn = aws_iam_role.task_role.arn
+  execution_role_arn = aws_iam_role.service_role.arn
+}
+
+resource aws_security_group service_sg {
+  name        = "Promiscuous"
+  description = "Promiscuous"
+  vpc_id      = var.vpc_id
+
+  ingress = [
+    {
+      description      = "Promiscuous"
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      cidr_blocks      = ["0.0.0.0/0"] #[aws_vpc.main.cidr_block]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids = []
+      security_groups = []
+      description = "Get your shit together."
+      self = false
+    }
+  ]
+
+  egress = [
+    {
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      self = false
+      prefix_list_ids = []
+      security_groups = []
+      description = "Get your shit together."
+    }
+  ]
+
+  tags = {
+    Name = "allow_tls"
+  }
 }
 
 resource aws_ecs_service service {
@@ -24,14 +69,12 @@ resource aws_ecs_service service {
   task_definition = aws_ecs_task_definition.service.arn
   desired_count   = 3
 
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "cpu"
-  }
+  launch_type = "FARGATE"
 
-  capacity_provider_strategy {
-    capacity_provider = "${var.cluster_id}-capacity-provider"
-    weight = 1
+  network_configuration {
+    assign_public_ip = false
+    security_groups  = [aws_security_group.service_sg.id]
+    subnets          = var.subnet_ids
   }
 
   lifecycle {
@@ -63,7 +106,7 @@ resource "aws_lb_listener_rule" "connect" {
 
 resource aws_lb_target_group tg {
   name        = "tg-${var.docker_image}"
-  port        = var.port
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
@@ -72,6 +115,93 @@ resource aws_lb_target_group tg {
 data "aws_iam_role" "ecs_role" {
   name = "${var.cluster_id}-ecs-role"
 }
+
+
+resource "aws_iam_role" "task_role" {
+  name = "ecs-${var.docker_image}-task-role"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+          "AWS" : data.aws_iam_role.ecs_role.arn
+        },
+        "Effect" : "Allow",
+        "Sid" : "",
+      }
+    ]
+  })
+}
+
+
+resource aws_iam_role_policy_attachment service_role_task_policy {
+  role       = aws_iam_role.task_role.name
+  policy_arn = aws_iam_policy.ecs_service_role_task_policy.arn
+}
+
+resource aws_iam_policy ecs_service_role_task_policy {
+  name        = "service-${var.docker_image}-task-policy"
+  path        = "/"
+  description = "Policy for service ${var.docker_image} tasks"
+
+  policy = data.aws_iam_policy_document.ecs_task_role_policy.json
+}
+
+
+data "aws_iam_policy_document" "ecs_task_role_policy" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "sts:assumerole",
+      "ssm:DescribeParameters",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions= [
+      "ecr:*"   
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "ssm:GetParametersByPath",
+      "ssm:GetParameters",
+      "ssm:GetParameter",
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/*"]
+  }
+  statement {
+    actions = [
+      "ecr:*",
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/*"]
+  }
+  statement {
+    actions = [
+      "sqs:ListQueues"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:ListSecretVersionIds"
+    ]
+    resources = ["arn:aws:secretsmanager:*:*:secret:*"]
+  }
+}
+
 
 resource aws_iam_role service_role {
   name = "ecs-${var.docker_image}-role"
@@ -121,10 +251,22 @@ data "aws_iam_policy_document" "ecs_role_policy" {
     resources = ["*"]
   }
   statement {
+    actions= [
+      "ecr:*"   
+    ]
+    resources = ["*"]
+  }
+  statement {
     actions = [
       "ssm:GetParametersByPath",
       "ssm:GetParameters",
       "ssm:GetParameter",
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/*"]
+  }
+  statement {
+    actions = [
+      "ecr:*",
     ]
     resources = ["arn:aws:ssm:*:*:parameter/*"]
   }

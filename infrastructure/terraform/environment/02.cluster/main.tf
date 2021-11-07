@@ -78,17 +78,12 @@ resource aws_launch_template booking {
     arn = aws_iam_instance_profile.ecs_ec2_instance_profile.arn
   }
 
-  key_name = aws_kms_key.ec2-ssm-key.key_id
+
+  #  key_name = "booking-main-ec2-key"
 
   update_default_version = true
 
   user_data = filebase64("userdata.sh")
-}
-
-resource "aws_kms_key" "ec2-ssm-key" {
-  description             = "Connection from session manager"
-  enable_key_rotation     = true
-  deletion_window_in_days = 10
 }
 
 resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
