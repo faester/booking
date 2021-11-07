@@ -56,7 +56,7 @@ resource "aws_security_group" "ecs_cluster_member_sg" {
     to_port         = 9999
     protocol        = "tcp"
     security_groups = [] #[module.lb.lb_sg_arn]
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks     = ["0.0.0.0/0"]
   }
 
   egress {
@@ -74,12 +74,97 @@ resource aws_launch_template booking {
 
   vpc_security_group_ids = [aws_security_group.ecs_cluster_member_sg.id]
 
+  iam_instance_profile {
+    arn = aws_iam_instance_profile.ecs_ec2_instance_profile.arn
+  }
+
+  update_default_version = true
+
+  user_data = filebase64("userdata.sh")
+}
+
+
+resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
+  name = "ecs_ec2_instance_profile-${local.cluster_identifier}"
+  role = aws_iam_role.ecs_ec2_instance_profile.name
+}
+
+resource "aws_iam_role_policy_attachment" "session_manager_role_attach" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.ecs_ec2_instance_profile.name
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatchagent_role_attach" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.ecs_ec2_instance_profile.name
+}
+
+
+resource "aws_iam_role_policy" "ecs_ec2_instance_policy" {
+  name = "ecs_ec2_instance_policy"
+  role = aws_iam_role.ecs_ec2_instance_profile.id
+
+  policy = data.aws_iam_policy_document.ecs_ec2_instance_policy.json
+}
+
+data aws_iam_policy_document ecs_ec2_instance_policy {
+  statement {
+
+    actions = [
+      "ec2:AttachVolume",
+      "ec2:DetachVolume",
+      "ec2:DescribeTags",
+      "ecs:CreateCluster",
+      "ecs:DeregisterContainerInstance",
+      "ecs:DiscoverPollEndpoint",
+      "ecs:Poll",
+      "ecs:RegisterContainerInstance",
+      "ecs:StartTelemetrySession",
+      "ecs:UpdateContainerInstancesState",
+      "ecs:Submit*",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    actions = [
+      "sts:assumerole"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role" "ecs_ec2_instance_profile" {
+  name = "ecs_ec2_instance_profile-${local.cluster_identifier}"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {   
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": ["ec2.amazonaws.com"]
+            },  
+            "Effect": "Allow",
+            "Sid": ""
+        }   
+    ]   
+}
+EOF
 }
 
 resource aws_autoscaling_group booking {
   capacity_rebalance   = true
   desired_capacity     = 0
-  max_size             = 6
+  max_size             = 3
   min_size             = 0
   vpc_zone_identifier  = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
   termination_policies = ["OldestInstance"]
