@@ -3,8 +3,8 @@ resource aws_ecs_task_definition service {
   family = "booking"
   container_definitions = jsonencode([
     {
-      name      = "first"
-      image     = var.docker_image
+      name      = "primary"
+      image     = "${var.docker_image}:${var.docker_tag}":w
       cpu       = var.cpu
       memory    = var.memory
       essential = true
@@ -18,38 +18,124 @@ resource aws_ecs_task_definition service {
   ])
 }
 
-resource aws_ecs_service mongo {
+resource aws_ecs_service service {
   name            = var.docker_image
   cluster         = var.cluster_id
   task_definition = aws_ecs_task_definition.service.arn
   desired_count   = 3
-  iam_role        = aws_iam_role.foo.arn
-  depends_on      = [aws_iam_role_policy.foo]
 
   ordered_placement_strategy {
     type  = "binpack"
     field = "cpu"
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.foo.arn
-    container_name   = var.docker_image
-    container_port   = var.port
-  }
-
   lifecycle {
     ignore_changes = [desired_count]
   }
 }
+ 
+resource aws_iam_role_policy_attachment ecs_service {
+  role       = aws_iam_role.service_role.name
+  policy_arn = aws_iam_policy.ecs_role_policy.arn
+  #policy_arn = "arn:aws:iam::aws:policy/aws-service-role/AmazonECSServiceRolePolicy" 
+}
 
-aws_iam_role_policy service_policy {
+resource "aws_lb_listener_rule" "static" {
+  listener_arn = aws_lb_listener.front_end.arn
+  priority     = 100
 
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.static.arn
+  }
+
+  condition {
+    host_header {
+      values = ["${var.subdomain}.${var.root_domain}"]
+    }
+  }
 }
 
 resource aws_lb_target_group tg {
   name        = "tg-${var.docker_image}"
   port        = var.port
-  protocol    = "http"
+  protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
+}
+
+data "aws_iam_role" "ecs_role" {
+  name = "${var.cluster_id}-ecs-role" 
+}
+
+resource aws_iam_role service_role {
+	name = "ecs-${var.docker_image}-role"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+          "AWS" : data.aws_iam_role.ecs_role.arn
+        },
+        "Effect" : "Allow",
+        "Sid" : "",
+      }
+    ]
+  })
+
+}
+
+resource aws_iam_role_policy_attachment service_role {
+  role       = aws_iam_role.service_role.name
+  policy_arn = aws_iam_policy.ecs_role_policy.arn
+}
+
+resource aws_iam_policy ecs_role_policy {
+  name        = "service-${var.docker_image}-policy"
+  path        = "/"
+  description = "Policy for service ${var.docker_image}"
+
+  policy = data.aws_iam_policy_document.ecs_role_policy.json
+}
+
+data "aws_iam_policy_document" "ecs_role_policy" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "sts:assumerole",
+      "ssm:DescribeParameters",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "ssm:GetParametersByPath",
+      "ssm:GetParameters",
+      "ssm:GetParameter",
+    ]
+    resources = ["arn:aws:ssm:*:*:parameter/*"]
+  }
+  statement {
+    actions = [
+      "sqs:ListQueues"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    actions = [
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:ListSecretVersionIds"
+    ]
+    resources = ["arn:aws:secretsmanager:*:*:secret:*"]
+  }
 }

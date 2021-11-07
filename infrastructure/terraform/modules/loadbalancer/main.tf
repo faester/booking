@@ -120,6 +120,10 @@ resource aws_acm_certificate cert {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags = {
+    domain = var.root_domain
+  }
 }
 
 resource aws_lb_listener http_to_https {

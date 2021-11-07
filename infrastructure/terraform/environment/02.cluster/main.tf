@@ -1,5 +1,6 @@
 locals {
   ecr_repositories = ["identity-server"]
+  cluster_identifier = "booking-main"
 }
 
 terraform {
@@ -114,6 +115,62 @@ resource aws_ecs_cluster booking {
     value = "enabled"
   }
 }
+
+
+######################################################################
+# IAM ROLES FOR ECS
+######################################################################
+resource "aws_iam_role" "ecs_role" {
+  name = "${local.cluster_identifier}-ecs-role"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "ecs.amazonaws.com"
+        },
+        "Effect" : "Allow",
+        "Sid" : "",
+      }
+    ]
+
+  })
+
+  tags = {
+    Cluster = local.cluster_identifier
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_role" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = aws_iam_policy.ecs_role_policy.arn
+}
+
+resource "aws_iam_policy" "ecs_role_policy" {
+  name        = "${local.cluster_identifier}-ecs-policy"
+  path        = "/"
+  description = "Policy for ECS in cluster ${local.cluster_identifier}"
+
+  policy = data.aws_iam_policy_document.ecs_role_policy.json
+}
+
+data "aws_iam_policy_document" "ecs_role_policy" {
+  statement {
+    actions = [
+      "ec2:*",
+      "s3:*",
+      "ecs:*",
+      "cloudwatch:*",
+      "sts:assumerole",
+      "logs:*"
+    ]
+    resources = ["*"]
+  }
+}
+
+
 
 module lb {
   source      = "../../modules/loadbalancer"
