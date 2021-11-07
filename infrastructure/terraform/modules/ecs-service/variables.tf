@@ -18,7 +18,7 @@ variable docker_image {
   type = string
 }
 
-variable docker_tag {
+variable listener_arn {
   type = string
   default = "latest"
 }
@@ -35,4 +35,9 @@ variable cpu {
 variable memory {
   type    = number
   default = 512
+}
+
+variable docker_tag {
+  type = string
+  default = "latest"
 }

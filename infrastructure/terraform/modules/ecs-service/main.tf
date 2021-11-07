@@ -4,7 +4,7 @@ resource aws_ecs_task_definition service {
   container_definitions = jsonencode([
     {
       name      = "primary"
-      image     = "${var.docker_image}:${var.docker_tag}":w
+      image     = "${var.docker_image}:${var.docker_tag}"
       cpu       = var.cpu
       memory    = var.memory
       essential = true
@@ -40,13 +40,13 @@ resource aws_iam_role_policy_attachment ecs_service {
   #policy_arn = "arn:aws:iam::aws:policy/aws-service-role/AmazonECSServiceRolePolicy" 
 }
 
-resource "aws_lb_listener_rule" "static" {
-  listener_arn = aws_lb_listener.front_end.arn
+resource "aws_lb_listener_rule" "connect" {
+  listener_arn = var.listener_arn
   priority     = 100
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.static.arn
+    target_group_arn = aws_lb_target_group.tg.arn
   }
 
   condition {
