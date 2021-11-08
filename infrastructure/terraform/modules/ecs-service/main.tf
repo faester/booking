@@ -7,6 +7,14 @@ resource aws_ecs_task_definition service {
       cpu       = var.cpu
       memory    = var.memory
       essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        "options" = {
+             "awslogs-group"         = aws_cloudwatch_log_group.task_log.name,
+             "awslogs-region"        = "eu-west-1",
+             "awslogs-stream-prefix" = var.subdomain
+           }
+      }
       portMappings = [
         {
           containerPort = 80
@@ -15,6 +23,10 @@ resource aws_ecs_task_definition service {
       ]
     }
   ])
+}
+
+resource "aws_cloudwatch_log_group" "task_log" {
+  name = "booking/services/${var.subdomain}"
 }
 
 resource aws_ecs_service service {
