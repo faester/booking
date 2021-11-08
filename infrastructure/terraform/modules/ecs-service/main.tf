@@ -154,3 +154,39 @@ data "aws_iam_policy_document" "ecs_role_policy" {
     resources = ["arn:aws:secretsmanager:*:*:secret:*"]
   }
 }
+
+######################################
+# Scaling
+######################################
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  min_capacity       = 1 # TODO: Two, if I did not pay :)
+  max_capacity       = 4
+  resource_id        = "service/${var.cluster_id}/${var.docker_image}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy" {
+  name               = "Autoscaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+ target_tracking_scaling_policy_configuration {
+    target_value = 60
+
+    customized_metric_specification {
+      metric_name = "MyUtilizationMetric"
+      namespace   = "MyNamespace"
+      statistic   = "Average"
+      unit        = "Percent"
+
+      dimensions {
+        name  = "MyOptionalMetricDimensionName"
+        value = "MyOptionalMetricDimensionValue"
+      }
+    }
+  }
+}
