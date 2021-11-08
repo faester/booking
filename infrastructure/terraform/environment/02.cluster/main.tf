@@ -163,8 +163,8 @@ EOF
 resource aws_autoscaling_group booking {
   capacity_rebalance   = true
   desired_capacity     = 0
-  max_size             = 3
-  min_size             = 0
+  max_size             = 1
+  min_size             = 1
   vpc_zone_identifier  = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
   termination_policies = ["OldestInstance"]
 
@@ -187,12 +187,12 @@ resource aws_autoscaling_group booking {
       }
 
       override {
-        instance_type     = "t3.nano"
+        instance_type     = "t3.small"
         weighted_capacity = "1"
       }
 
       override {
-        instance_type     = "t3a.nano"
+        instance_type     = "t3a.small"
         weighted_capacity = "1"
       }
     }

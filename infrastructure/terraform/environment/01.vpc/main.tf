@@ -45,7 +45,7 @@ resource aws_subnet booking-a {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "eu-west-1a"
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
 
 
   tags = {
@@ -57,7 +57,7 @@ resource aws_subnet booking-b {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-1b"
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "booking-b"
@@ -148,7 +148,7 @@ resource aws_route_table booking_public {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id =  aws_nat_gateway.natgw.id #aws_internet_gateway.gw.id
+    gateway_id = aws_internet_gateway.gw.id
   }
 
   tags = {

@@ -1,10 +1,9 @@
-
 resource aws_ecs_task_definition service {
   family = "booking"
   container_definitions = jsonencode([
     {
       name      = "primary"
-      image     = "${var.docker_image}:${var.docker_tag}"
+      image     = "539839626842.dkr.ecr.eu-west-1.amazonaws.com/${var.docker_image}:${var.docker_tag}"
       cpu       = var.cpu
       memory    = var.memory
       essential = true

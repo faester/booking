@@ -37,6 +37,9 @@ module identity {
   vpc_id       = local.vpc_id
   cluster_id   = "booking-main"
 
+  memory = 1024
+  cpu    = 1024
+
   root_domain  = "mfaester.dk"
   port         = 8000
   subdomain    = "identity-server"
