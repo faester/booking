@@ -178,7 +178,7 @@ resource "aws_appautoscaling_policy" "ecs_policy" {
     target_value = 60
 
     customized_metric_specification {
-      metric_name = "MyUtilizationMetric"
+      metric_name = "CPUUtilization"
       namespace   = "MyNamespace"
       statistic   = "Average"
       unit        = "Percent"
