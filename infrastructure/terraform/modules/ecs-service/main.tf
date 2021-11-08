@@ -2,7 +2,7 @@ resource aws_ecs_task_definition service {
   family = "booking"
   container_definitions = jsonencode([
     {
-      name      = "primary"
+      name      = var.subdomain
       image     = "539839626842.dkr.ecr.eu-west-1.amazonaws.com/${var.docker_image}:${var.docker_tag}"
       cpu       = var.cpu
       memory    = var.memory
@@ -26,6 +26,12 @@ resource aws_ecs_service service {
   ordered_placement_strategy {
     type  = "binpack"
     field = "cpu"
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.tg.arn
+    container_name   = var.subdomain
+    container_port   = 80
   }
 
   capacity_provider_strategy {
@@ -66,6 +72,11 @@ resource aws_lb_target_group tg {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
+  health_check {
+    interval = 10
+    matcher = "200,404"
+    timeout = 9
+  }
 }
 
 data "aws_iam_role" "ecs_role" {
