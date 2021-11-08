@@ -45,6 +45,8 @@ resource aws_subnet booking-a {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "eu-west-1a"
+  map_public_ip_on_launch = false
+
 
   tags = {
     Name = "booking-a"
@@ -55,6 +57,7 @@ resource aws_subnet booking-b {
   vpc_id            = aws_vpc.booking.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-1b"
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "booking-b"
@@ -93,6 +96,7 @@ resource "aws_security_group" "vpc_endpoint_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
 }
 
 resource "aws_vpc_endpoint" "vpc_endpoints" {
@@ -101,7 +105,7 @@ resource "aws_vpc_endpoint" "vpc_endpoints" {
   service_name = "com.amazonaws.eu-west-1.${each.value}"
 
   vpc_endpoint_type = each.value == "s3" ? "Gateway" : "Interface"
-  #private_dns_enabled = true
+  private_dns_enabled = each.value != "s3" 
 
   security_group_ids = each.value == "s3" ? [] : [aws_security_group.vpc_endpoint_sg.id]
 
@@ -121,13 +125,30 @@ resource aws_internet_gateway gw {
   }
 }
 
+resource "aws_eip" "nateip" {
+  vpc = true
+  tags = { 
+    Name = "booking-main-eip-natgw"
+  }
+  depends_on = [aws_internet_gateway.gw, ]
+}
+
+resource "aws_nat_gateway" "natgw" {
+  allocation_id = aws_eip.nateip.id
+  subnet_id     = aws_subnet.booking-a.id
+  tags = { 
+    Name = "booking-main-natgw"
+  }
+  depends_on = [aws_internet_gateway.gw, ]
+}
+
 resource aws_route_table booking_public {
   vpc_id = aws_vpc.booking.id
 
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    gateway_id =  aws_nat_gateway.natgw.id #aws_internet_gateway.gw.id
   }
 
   tags = {
