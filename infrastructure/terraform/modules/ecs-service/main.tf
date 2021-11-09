@@ -23,6 +23,7 @@ resource aws_ecs_task_definition service {
       ]
     }
   ])
+  task_role_arn = aws_iam_role.service_role.arn
 }
 
 resource "aws_cloudwatch_log_group" "task_log" {

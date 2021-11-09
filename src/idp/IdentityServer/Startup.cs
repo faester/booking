@@ -8,6 +8,7 @@ using Amazon;
 using Amazon.KeyManagementService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
@@ -53,7 +54,13 @@ namespace IdentityServer
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            var forwardHeaderSettings = new ForwardedHeadersOptions
+            {   
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto,
+            };  
+            forwardHeaderSettings.KnownNetworks.Clear();
+            forwardHeaderSettings.AllowedHosts.Clear();
+            app.UseForwardedHeaders(forwardHeaderSettings);
             // uncomment if you want to add MVC
             app.UseStaticFiles();
             app.UseRouting();
