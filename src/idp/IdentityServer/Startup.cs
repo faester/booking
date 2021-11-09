@@ -55,16 +55,16 @@ namespace IdentityServer
                 app.UseDeveloperExceptionPage();
             }
             var forwardHeaderSettings = new ForwardedHeadersOptions
-            {   
+            {
                 ForwardedHeaders = ForwardedHeaders.XForwardedProto,
-            };  
+            };
             forwardHeaderSettings.KnownNetworks.Clear();
             forwardHeaderSettings.AllowedHosts.Clear();
             app.UseForwardedHeaders(forwardHeaderSettings);
             // uncomment if you want to add MVC
             app.UseStaticFiles();
             app.UseRouting();
-            
+
             app.UseIdentityServer();
 
             // uncomment, if you want to add MVC
