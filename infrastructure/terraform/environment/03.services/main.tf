@@ -33,7 +33,7 @@ data aws_vpc main {
 
 module identity {
   source       = "../../modules/ecs-service"
-  docker_image = "identityserver"
+  docker_image = "identity-server"
   vpc_id       = local.vpc_id
   cluster_id   = "booking-main"
 
@@ -41,13 +41,9 @@ module identity {
   cpu    = 1024
 
   root_domain  = "mfaester.dk"
+  port         = 8000
   subdomain    = "identity-server"
   listener_arn = "arn:aws:elasticloadbalancing:eu-west-1:539839626842:listener/app/booking-public-lb/aaeb45b1f270cbf7/46764fad2dd56422"
-
-  subnet_ids = [
-    "subnet-0655619bc33285c37",
-    "subnet-0a296a9c57b409175",
-  ]
 }
 
 
