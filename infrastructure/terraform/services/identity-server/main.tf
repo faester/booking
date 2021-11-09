@@ -30,27 +30,27 @@ resource aws_iam_policy ecs_role_policy {
 data "aws_iam_policy_document" "ecs_role_policy" {
   statement {
     actions = [
-                "sdb:DeleteAttributes",
-                "sdb:GetAttributes",
-                "sdb:BatchDeleteAttributes",
-                "sdb:PutAttributes",
-                "ssm:GetParametersByPath",
-                "sdb:Select",
-                "sdb:BatchPutAttributes",
-                "sdb:DomainMetadata"
+      "sdb:DeleteAttributes",
+      "sdb:GetAttributes",
+      "sdb:BatchDeleteAttributes",
+      "sdb:PutAttributes",
+      "ssm:GetParametersByPath",
+      "sdb:Select",
+      "sdb:BatchPutAttributes",
+      "sdb:DomainMetadata"
     ]
     resources = ["arn:aws:sdb:*:${var.account_id}:domain/users"]
   }
   statement {
     actions = [
-                "sdb:ListDomains",
+      "sdb:ListDomains",
     ]
     resources = ["*"]
   }
   statement {
     actions = [
-                "sqs:SendMessage",
-                "sqs:DeleteMessage",
+      "sqs:SendMessage",
+      "sqs:DeleteMessage",
     ]
     resources = [aws_sqs_queue.events.arn]
   }
@@ -62,6 +62,6 @@ resource "aws_simpledb_domain" "users" {
 }
 
 resource "aws_sqs_queue" "events" {
-  name = "booking-audit-events"
+  name                      = "booking-audit-events"
   message_retention_seconds = 86400 * 7
 }

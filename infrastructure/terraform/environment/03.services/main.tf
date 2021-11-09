@@ -31,8 +31,8 @@ data "aws_caller_identity" "current" {}
 
 
 module identity_server {
-  source       = "../../services/identity-server"
-  vpc_id = local.vpc_id
+  source     = "../../services/identity-server"
+  vpc_id     = local.vpc_id
   account_id = data.aws_caller_identity.current.account_id
 }
 

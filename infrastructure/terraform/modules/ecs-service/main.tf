@@ -10,10 +10,10 @@ resource aws_ecs_task_definition service {
       logConfiguration = {
         logDriver = "awslogs"
         "options" = {
-             "awslogs-group"         = aws_cloudwatch_log_group.task_log.name,
-             "awslogs-region"        = "eu-west-1",
-             "awslogs-stream-prefix" = var.subdomain
-           }
+          "awslogs-group"         = aws_cloudwatch_log_group.task_log.name,
+          "awslogs-region"        = "eu-west-1",
+          "awslogs-stream-prefix" = var.subdomain
+        }
       }
       portMappings = [
         {
@@ -27,7 +27,7 @@ resource aws_ecs_task_definition service {
 }
 
 resource "aws_cloudwatch_log_group" "task_log" {
-  name = "booking/services/${var.subdomain}"
+  name              = "booking/services/${var.subdomain}"
   retention_in_days = 14
 }
 
@@ -50,7 +50,7 @@ resource aws_ecs_service service {
 
   capacity_provider_strategy {
     capacity_provider = "${var.cluster_id}-capacity-provider"
-    weight = 1
+    weight            = 1
   }
 
   lifecycle {
@@ -88,8 +88,8 @@ resource aws_lb_target_group tg {
   target_type = "instance"
   health_check {
     interval = 10
-    matcher = "200,404"
-    timeout = 9
+    matcher  = "200,404"
+    timeout  = 9
   }
 }
 
@@ -188,14 +188,14 @@ resource "aws_appautoscaling_policy" "ecs_policy" {
   scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
 
- target_tracking_scaling_policy_configuration {
+  target_tracking_scaling_policy_configuration {
     target_value = 60
 
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    scale_in_cooldown = 60
+    scale_in_cooldown  = 60
     scale_out_cooldown = 60
   }
 }
