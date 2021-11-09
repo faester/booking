@@ -23,21 +23,11 @@ variable listener_arn {
   default = "latest"
 }
 
-variable port {
-  type = number
-}
-
-variable cpu {
-  type    = number
-  default = 256
-}
-
-variable memory {
-  type    = number
-  default = 512
-}
-
 variable docker_tag {
   type    = string
   default = "latest"
+}
+
+variable subnet_ids {
+  type = list(string)
 }
