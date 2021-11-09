@@ -39,7 +39,11 @@ data "aws_iam_policy_document" "ecs_role_policy" {
       "sdb:BatchPutAttributes",
       "sdb:DomainMetadata"
     ]
-    resources = ["arn:aws:sdb:*:${var.account_id}:domain/users"]
+    resources = [
+      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.users.name}",
+      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.consent.name}",
+      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.state.name}",
+    ]
   }
   statement {
     actions = [
@@ -59,6 +63,14 @@ data "aws_iam_policy_document" "ecs_role_policy" {
 
 resource "aws_simpledb_domain" "users" {
   name = "users"
+}
+
+resource "aws_simpledb_domain" "consent" {
+  name = "consent"
+}
+
+resource "aws_simpledb_domain" "state" {
+  name = "state"
 }
 
 resource "aws_sqs_queue" "events" {
