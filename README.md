@@ -1,11 +1,11 @@
 # Identity Server 4 toy project
 
-## Infracstructure
+## Infrastructure
 The 'infrastructrue' directory contains setup of an AWS account. 
 
 It assumes one environment per account (no attempts of being clever with paths in ssm etc). 
 
-Infracstructure is scriptet in terraform. Account number and regions is hard coded. 
+Infrastructure is scriptet in terraform. Account number and regions is hard coded. 
 
 It will create one single ECS cluster, an LB and listeners for each service. We have a closed 
 vpc with vpc endpoint and rather laxed SGs (no nacl). 
@@ -17,16 +17,18 @@ delegated to AWS.
 IdentityServer need some key material for signing its tokens. This is stored in SecretsManager under `secrets/main_rsa_key` 
 - the value must be valid RSAParameters in a json object containing the values as base64 encoded strings.
 
-    {
-        "D": "vD8...",
-        "DP": "AXnmC...",
-        "DQ": "jtsB7D...",
-        "Exponent": "AQAB",
-        "InverseQ": "Rp...",
-        "Modulus": "zTRTVSd...",
-        "P": "+LKuz...",
-        "Q": "0zq6F..."
-     } 
+```yaml
+{
+   "D": "vD8...",
+   "DP": "AXnmC...",
+   "DQ": "jtsB7D...",
+   "Exponent": "AQAB",
+   "InverseQ": "Rp...",
+   "Modulus": "zTRTVSd...",
+   "P": "+LKuz...",
+   "Q": "0zq6F..."
+}
+```
 
 # Project 
 Standard example project from ID4 with UI example added. Modifications on handling keys (above). We use hard coded configuration to avoid setting 
