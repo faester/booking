@@ -189,16 +189,11 @@ resource "aws_appautoscaling_policy" "ecs_policy" {
  target_tracking_scaling_policy_configuration {
     target_value = 60
 
-    customized_metric_specification {
-      metric_name = "CPUUtilization"
-      namespace   = "MyNamespace"
-      statistic   = "Average"
-      unit        = "Percent"
-
-      dimensions {
-        name  = "MyOptionalMetricDimensionName"
-        value = "MyOptionalMetricDimensionValue"
-      }
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
+
+    scale_in_cooldown = 60
+    scale_out_cooldown = 60
   }
 }
