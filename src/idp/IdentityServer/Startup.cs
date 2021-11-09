@@ -2,10 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
+using System.Security.Cryptography;
+using Amazon;
+using Amazon.KeyManagementService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityServer
 {
@@ -32,8 +37,14 @@ namespace IdentityServer
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddInMemoryClients(Config.Clients);
 
-            // not recommended for production - you need to store your key material somewhere secure
-            builder.AddDeveloperSigningCredential();
+            builder.AddSigningCredential(CreateSigningCredentials());
+        }
+
+        private SigningCredentials CreateSigningCredentials()
+        {
+            RSAParameters rsaParameters = SecretsRetriever.GetRSAParameters("secrets/main_rsa_key");
+            SecurityKey key = new RsaSecurityKey(rsaParameters);
+            return new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
         }
 
         public void Configure(IApplicationBuilder app)
@@ -44,8 +55,8 @@ namespace IdentityServer
             }
 
             // uncomment if you want to add MVC
-            //app.UseStaticFiles();
-            //app.UseRouting();
+            app.UseStaticFiles();
+            app.UseRouting();
             
             app.UseIdentityServer();
 

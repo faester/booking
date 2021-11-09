@@ -9,7 +9,13 @@ build_dotnet_core_projects:
 build_docker_images: 
 	docker build . -f docker/Dockerfile.identityserver -t identity-server:local
 
-run: build_docker_images
+build: build_dotnet_core_projects
+
+run: build
+	dotnet ./src/idp/IdentityServer/bin/Debug/netcoreapp3.1/IdentityServer.dll
+	
+
+docker_run: build_docker_images
 	docker run -d --rm -p 8000:80 --name identity_server identity-server:local
 
 stop: 
