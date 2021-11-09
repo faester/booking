@@ -28,6 +28,7 @@ resource aws_ecs_task_definition service {
 
 resource "aws_cloudwatch_log_group" "task_log" {
   name = "booking/services/${var.subdomain}"
+  retention_in_days = 14
 }
 
 resource aws_ecs_service service {
