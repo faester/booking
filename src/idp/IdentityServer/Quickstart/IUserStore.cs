@@ -10,6 +10,5 @@ namespace IdentityServer.Quickstart
         TestUser FindByUsername(string username);
         TestUser FindByExternalProvider(string provider, string userId);
         Task Store(TestUser user);
-        Task StorePassword(string subjectId, string password);
     }
 }

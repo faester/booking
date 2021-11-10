@@ -9,38 +9,115 @@ using Xunit;
 using FluentAssertions;
 using IdentityServer.Quickstart;
 using IdentityServer4.Test;
-using Microsoft.Win32.SafeHandles;
 
 namespace IdentityServer.unittests.QuickStart
 {
-    public class SimpleDbUserStoreTestsSetup
-    {
-        private static Lazy<IAmazonSimpleDB> _instance;
-        public static Lazy<IAmazonSimpleDB> SimpleDbClient => _instance ??= new Lazy<IAmazonSimpleDB>(Initialize);
-        public const string DomainForTest = "integrationtests";
-        private static IAmazonSimpleDB Initialize()
-        {
-            var simpleDbClient = new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), RegionEndpoint.EUWest1);
-            var result = simpleDbClient.ListDomainsAsync();
-            result.Wait(TimeSpan.FromSeconds(30));
-            if (result.Result.DomainNames.Contains(DomainForTest))
-            {
-                simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTest)).Wait();
-            }
-
-            simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTest)).Wait();
-            return simpleDbClient;
-        }
-    }
-
-
     public class SimpleDbUserStoreTests
     {
+        public class SimpleDbUserStoreTestsSetup
+        {
+            private static Lazy<IAmazonSimpleDB> _instance;
+            public static Lazy<IAmazonSimpleDB> SimpleDbClient => _instance ??= new Lazy<IAmazonSimpleDB>(Initialize);
+            public const string DomainForTest = "integrationtests";
+
+            private static IAmazonSimpleDB Initialize()
+            {
+                var simpleDbClient = new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), RegionEndpoint.EUWest1);
+                var result = simpleDbClient.ListDomainsAsync();
+                result.Wait(TimeSpan.FromSeconds(30));
+                if (result.Result.DomainNames.Contains(DomainForTest))
+                {
+                    simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTest)).Wait();
+                }
+
+                simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTest)).Wait();
+                return simpleDbClient;
+            }
+        }
+
+
         private readonly SimpleDbUserStore _subject;
 
         public SimpleDbUserStoreTests()
         {
             _subject = new SimpleDbUserStore(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value, SimpleDbUserStoreTestsSetup.DomainForTest);
+        }
+
+        [Fact]
+        public async Task Store_WhenPasswordIsNull()
+        {
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString()
+            };
+            await _subject.Store(original);
+
+            var actual = _subject.FindByUsername(original.Username);
+
+            actual.Username.Should().Be(original.Username);
+            actual.SubjectId.Should().Be(original.SubjectId);
+        }
+
+        [Fact]
+        public async Task Store_WhenPasswordIsNull_ThenPasswordIsNotIdentical()
+        {
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString(),
+                Password = "HelloWorld021938",
+            };
+            await _subject.Store(original);
+
+            var actual = _subject.FindByUsername(original.Username);
+
+            actual.Username.Should().Be(original.Username);
+            actual.SubjectId.Should().Be(original.SubjectId);
+            actual.Password.Should().NotBe(original.Password);
+        }
+
+        [Fact]
+        public async Task Store_WhenPasswordIsNull_ThenPasswordIsVerifiable()
+        {
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString(),
+                Password = "HelloWorld021938",
+            };
+            await _subject.Store(original);
+
+            throw new NotImplementedException();
+        }
+
+        [Fact]
+        public async Task Store_WhenPasswordIsNotNull_ThenCorrectPasswordIsVerifiable()
+        {
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString(),
+                Password = "HelloWorld021938",
+            };
+            await _subject.Store(original);
+
+            throw new NotImplementedException();
+        }
+
+
+        [Fact]
+        public async Task Store_WhenPasswordIsNotNull_ThenIncorrectPasswordIsVerifiable()
+        {
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString(),
+                Password = "HelloWorld021938",
+            };
+            await _subject.Store(original);
+
+            throw new NotImplementedException();
         }
 
         [Fact]
