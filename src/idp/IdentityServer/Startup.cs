@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System;
 using System.Security.Cryptography;
-using Amazon;
-using Amazon.KeyManagementService;
 using Amazon.SimpleDB;
 using IdentityServer.Quickstart;
 using Microsoft.AspNetCore.Builder;
@@ -42,6 +39,7 @@ namespace IdentityServer
 
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
+            services.AddSingleton<IPasswordFunctions, BCryptPasswordFunctions>();
             services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
         }
 

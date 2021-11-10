@@ -9,6 +9,7 @@ using Xunit;
 using FluentAssertions;
 using IdentityServer.Quickstart;
 using IdentityServer4.Test;
+using Moq;
 
 namespace IdentityServer.unittests.QuickStart
 {
@@ -35,12 +36,13 @@ namespace IdentityServer.unittests.QuickStart
             }
         }
 
+        private Mock<IPasswordFunctions> _pwdFunctions = new Mock<IPasswordFunctions>();
 
         private readonly SimpleDbUserStore _subject;
 
         public SimpleDbUserStoreTests()
         {
-            _subject = new SimpleDbUserStore(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value, SimpleDbUserStoreTestsSetup.DomainForTest);
+            _subject = new SimpleDbUserStore(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value, _pwdFunctions.Object, SimpleDbUserStoreTestsSetup.DomainForTest);
         }
 
         [Fact]
@@ -123,9 +125,11 @@ namespace IdentityServer.unittests.QuickStart
         [Fact]
         public async Task FindByUsername()
         {
-            var original = new TestUser();
-            original.Username = "fancy fancy - tak :)";
-            original.SubjectId = Guid.NewGuid().ToString();
+            var original = new TestUser
+            {
+                Username = "fancy fancy - tak :)",
+                SubjectId = Guid.NewGuid().ToString()
+            };
             await _subject.Store(original);
 
             var actual = _subject.FindByUsername(original.Username);
@@ -136,15 +140,17 @@ namespace IdentityServer.unittests.QuickStart
         [Fact]
         public async Task FindByUsername_ThenValuesArePreserved()
         {
-            var original = new TestUser();
-            original.Username = "faester";
-            original.SubjectId = Guid.NewGuid().ToString();
-            original.Claims = new List<Claim>()
+            var original = new TestUser
             {
-                new Claim(ClaimTypes.Actor, "actor", ClaimValueTypes.String), new Claim(ClaimTypes.Country, "DK", ClaimValueTypes.String),
+                Username = "faester",
+                SubjectId = Guid.NewGuid().ToString(),
+                Claims = new List<Claim>()
+                {
+                    new Claim(ClaimTypes.Actor, "actor", ClaimValueTypes.String), new Claim(ClaimTypes.Country, "DK", ClaimValueTypes.String),
+                },
+                Password = "3jFOJZEZ+jK28BN9",
+                IsActive = true
             };
-            original.Password = "3jFOJZEZ+jK28BN9";
-            original.IsActive = true;
             await _subject.Store(original);
 
             var actual = _subject.FindByUsername(original.Username);

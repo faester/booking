@@ -9,7 +9,6 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -111,9 +110,9 @@ namespace IdentityServerHost.Quickstart.UI
             if (ModelState.IsValid)
             {
                 // validate username/password against in-memory store
-                if (_users.ValidateCredentials(model.Username, model.Password))
+                var user = _users.ValidateCredentials(model.Username, model.Password);
+                if (user != null)
                 {
-                    var user = _users.FindByUsername(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
 
                     // only set explicit expiration here if user chooses "remember me". 

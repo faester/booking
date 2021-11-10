@@ -24,34 +24,55 @@ namespace IdentityServer.Quickstart
         private const string HASHED_PASSWORD_PREFIX = "BCRYPT:";
         private const string SharedSalt = "L/8V2c+mjflmZdnAC1YG/sYmkV5BA2Zjl7j8M5";
         private readonly IAmazonSimpleDB _simpleDbClient;
+        private readonly IPasswordFunctions _passwordFunctions;
         private readonly string _domainName;
         private static TimeSpan _timeout = TimeSpan.FromSeconds(5);
 
-        public SimpleDbUserStore(IAmazonSimpleDB simpleDbClient, string domainName = "users")
+        public SimpleDbUserStore(IAmazonSimpleDB simpleDbClient, IPasswordFunctions passwordFunctions, string domainName = "users")
         {
             _simpleDbClient = simpleDbClient;
+            _passwordFunctions = passwordFunctions;
             _domainName = domainName;
         }
 
-        public bool ValidateCredentials(string username, string password)
+        public TestUser ValidateCredentials(string username, string password)
         {
-            throw new System.NotImplementedException();
+            var user = FindByUsername(username);
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (!_passwordFunctions.IsHashedWithThisFunction(user.Password))
+            {
+                throw new ArgumentException("The users password is hashed with a wrong algorithm.");
+            }
+
+            return _passwordFunctions.CompareHashedPassword(password, user.Password)
+                ? user
+                : null;
+
         }
 
         public TestUser FindBySubjectId(string subjectId)
         {
+            if (!Guid.TryParse(subjectId, out var subjectIdGuid))
+            {
+                return null;
+            }
+
             var request = new GetAttributesRequest(_domainName, subjectId);
             var item =_simpleDbClient.GetAttributesAsync(request);
 
             item.Wait();
 
-            return Translate(item.Result.Attributes);
+            return Translate(subjectIdGuid, item.Result.Attributes);
         }
 
-        private TestUser Translate(List<Attribute> itemResult)
+        private TestUser Translate(Guid userid, List<Attribute> itemResult)
         {
             TestUser result = new TestUser();
-
+            result.SubjectId = userid.ToString();
             foreach(var attribute in itemResult)
             {
                 switch (attribute.Name)
@@ -109,7 +130,7 @@ namespace IdentityServer.Quickstart
 
             var item = retrievalTask.Result.Items[0];
 
-            return Translate(item.Attributes);
+            return Translate(Guid.Parse(retrievalTask.Result.Items[0].Name), item.Attributes);
         }
 
         public TestUser FindByExternalProvider(string provider, string userId)
@@ -139,7 +160,7 @@ namespace IdentityServer.Quickstart
             var attributes = new List<ReplaceableAttribute>();
             AddForUpdateOrDelete(IS_ACTIVE, user.IsActive ? "true" : "false", attributes, deletes);
             AddForUpdateOrDelete(USERNAME_FIELD, CanonicalizeUsername(user.Username), attributes, deletes);
-            AddForUpdateOrDelete(PASSWORD_FIELD, HashPassword(user.Password), attributes, deletes);
+            AddForUpdateOrDelete(PASSWORD_FIELD, user.Password == null ? null : (_passwordFunctions.CreateHash(user.Password)), attributes, deletes);
             AddForUpdateOrDelete(PROVIDERNAME_FIELD, user.ProviderName, attributes, deletes);
             AddForUpdateOrDelete(PROVIDER_SUBJECTID_FIELD, user.ProviderSubjectId, attributes, deletes);
             AddForUpdateOrDelete(CLAIMS_FIELD,  user.Claims == null ? null : user.ProviderSubjectId, attributes, deletes);
@@ -156,29 +177,6 @@ namespace IdentityServer.Quickstart
                 await _simpleDbClient.DeleteAttributesAsync(deleteRequest);
             }
         }
-
-        private string HashPassword(string userPassword)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(userPassword);
-        }
-
-        public async Task StorePassword(string subjectId, string password)
-        {
-            string passwordValueForDb;
-            if (password.StartsWith(HASHED_PASSWORD_PREFIX))
-            {
-                passwordValueForDb = password;
-            }
-            else
-            {
-                passwordValueForDb = HASHED_PASSWORD_PREFIX + BCrypt.Net.BCrypt.HashPassword(password, SharedSalt);
-            }
-            var attributes = new List<ReplaceableAttribute>();
-            attributes.Add(new ReplaceableAttribute(PASSWORD_FIELD, passwordValueForDb, true));
-            await _simpleDbClient.PutAttributesAsync(new PutAttributesRequest(_domainName, subjectId, attributes));
-        }
-
-        
 
         public Task DeleteBySubjectId(string subjectId)
         {
