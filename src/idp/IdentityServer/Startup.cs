@@ -6,6 +6,8 @@ using System;
 using System.Security.Cryptography;
 using Amazon;
 using Amazon.KeyManagementService;
+using Amazon.SimpleDB;
+using IdentityServer.Quickstart;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -39,6 +41,8 @@ namespace IdentityServer
                 .AddInMemoryClients(Config.Clients);
 
             builder.AddSigningCredential(CreateSigningCredentials());
+            services.AddScoped<IUserStore, SimpleDbUserStore>();
+            services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
         }
 
         private SigningCredentials CreateSigningCredentials()

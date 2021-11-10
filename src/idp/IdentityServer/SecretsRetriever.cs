@@ -10,7 +10,7 @@ using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 
-static class SecretsRetriever {
+public static class SecretsRetriever {
 
     /// <summary>
     ///  Assume secret is a json blob containing a dictionary with keys and base64 strings for 
@@ -34,7 +34,7 @@ static class SecretsRetriever {
         return result;
     }
 
-    public static AWSCredentials CreateCredentials() {
+    public static AWSCredentials GetCredentials() {
         var chain = new CredentialProfileStoreChain();
         return chain.TryGetAWSCredentials("mfaester", out var credentials) 
             ? credentials
@@ -45,9 +45,7 @@ static class SecretsRetriever {
     {
         string secret = "";
 
-        MemoryStream memoryStream = new MemoryStream();
-
-        IAmazonSecretsManager client = new AmazonSecretsManagerClient(CreateCredentials(), RegionEndpoint.EUWest1);
+        IAmazonSecretsManager client = new AmazonSecretsManagerClient(GetCredentials(), Region);
 
         GetSecretValueRequest request = new GetSecretValueRequest();
         request.SecretId = secretName;
@@ -65,7 +63,7 @@ static class SecretsRetriever {
         }
         else
         {
-            memoryStream = response.SecretBinary;
+            var memoryStream = response.SecretBinary;
             StreamReader reader = new StreamReader(memoryStream);
             string decodedBinarySecret = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(reader.ReadToEnd()));
         }
@@ -73,4 +71,6 @@ static class SecretsRetriever {
         // Your code goes here.
         return secret;
     }
+
+    public static RegionEndpoint Region => RegionEndpoint.EUWest1;
 }

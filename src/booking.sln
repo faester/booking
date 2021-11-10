@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1500
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "idp", "idp", "{D2F07646-714E-4805-BDF6-24A705114AAC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "idp\IdentityServer\IdentityServer.csproj", "{DC193144-1F60-435D-9C4A-5781656C9135}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityServer.unittests", "idp\IdentityServer.unittests\IdentityServer.unittests.csproj", "{6471FDB5-FE27-4049-A376-BBDE86CCEC31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer.unittests", "idp\IdentityServer.unittests\IdentityServer.unittests.csproj", "{6471FDB5-FE27-4049-A376-BBDE86CCEC31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
