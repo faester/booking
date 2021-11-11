@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer.Quickstart;
+using IdentityServer4.Test;
 
 namespace IdentityServerHost.Quickstart.UI
 {
@@ -189,13 +190,29 @@ namespace IdentityServerHost.Quickstart.UI
         /// Show signup page
         /// </summary>
         [HttpPost]
-        public IActionResult SignUp(SignupViewModel vm)
+        public async Task<IActionResult> SignUp(SignupViewModel vm)
         {
             if (!ModelState.IsValid)
             {
                 return View(vm);
             }
-            // build a model so the logout page knows what to display
+            if (_users.FindByUsername(vm.Username) != null)
+            {
+                ModelState.AddModelError(nameof(SignupViewModel.Username), "Username already in use");
+                return View(vm);
+            }
+
+            var testUser = new TestUser
+            {
+                ProviderName = "id4", 
+                Password = vm.Password, 
+                Username = vm.Username, 
+                IsActive = false, 
+                SubjectId = Guid.NewGuid().ToString(),
+            };
+
+            await _users.Store(testUser);
+            await _users.StoreUserInformation(testUser.SubjectId, vm);
             return View(vm);
         }
 
