@@ -173,7 +173,33 @@ namespace IdentityServerHost.Quickstart.UI
             return View(vm);
         }
 
-        
+        /// <summary>
+        /// Show signup page
+        /// </summary>
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public IActionResult SignUp()
+        {
+            // build a model so the logout page knows what to display
+            var vm = new SignupViewModel();
+            return View(vm);
+        }
+
+        /// <summary>
+        /// Show signup page
+        /// </summary>
+        [HttpPost]
+        public IActionResult SignUp(SignupViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+            // build a model so the logout page knows what to display
+            return View(vm);
+        }
+
+
         /// <summary>
         /// Show logout page
         /// </summary>

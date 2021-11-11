@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using IdentityServer4.Test;
+using IdentityServerHost.Quickstart.UI;
 
 namespace IdentityServer.Quickstart
 {
@@ -15,7 +16,9 @@ namespace IdentityServer.Quickstart
         TestUser ValidateCredentials(string username, string password);
         TestUser FindBySubjectId(string subjectId);
         TestUser FindByUsername(string username);
-        TestUser FindByExternalProvider(string provider, string userId);
         Task Store(TestUser user);
+
+        Task StoreUserInformation(string subjectId, UserInformation signupViewModel);
+        Task<UserInformation> GetUserInformation(string subjectId);
     }
 }

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
 using IdentityServer4.Test;
+using IdentityServerHost.Quickstart.UI;
 using Newtonsoft.Json;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
@@ -21,8 +21,9 @@ namespace IdentityServer.Quickstart
         private const string PASSWORD_FIELD = "pwd";
         private const string PROVIDERNAME_FIELD = "provider";
         private const string PROVIDER_SUBJECTID_FIELD = "provider_subject";
-        private const string HASHED_PASSWORD_PREFIX = "BCRYPT:";
-        private const string SharedSalt = "L/8V2c+mjflmZdnAC1YG/sYmkV5BA2Zjl7j8M5";
+        private const string ADDRESS_FIELD = "address";
+        private const string PHONE_FIELD = "phone";
+        private const string EMAIL_FIELD = "email";
         private readonly IAmazonSimpleDB _simpleDbClient;
         private readonly IPasswordFunctions _passwordFunctions;
         private readonly string _domainName;
@@ -39,6 +40,11 @@ namespace IdentityServer.Quickstart
         {
             var user = FindByUsername(username);
             if (user == null)
+            {
+                return null;
+            }
+
+            if (user.Password == null)
             {
                 return null;
             }
@@ -71,7 +77,7 @@ namespace IdentityServer.Quickstart
 
         private TestUser Translate(Guid userid, List<Attribute> itemResult)
         {
-            TestUser result = new TestUser();
+            var result = new TestUser();
             result.SubjectId = userid.ToString();
             foreach(var attribute in itemResult)
             {
@@ -133,11 +139,6 @@ namespace IdentityServer.Quickstart
             return Translate(Guid.Parse(retrievalTask.Result.Items[0].Name), item.Attributes);
         }
 
-        public TestUser FindByExternalProvider(string provider, string userId)
-        {
-            throw new System.NotImplementedException();
-        }
-
         private void AddForUpdateOrDelete(string attributeName, string value, List<ReplaceableAttribute> updateList, List<Attribute> deleteList)
         {
             if (value == null)
@@ -156,6 +157,13 @@ namespace IdentityServer.Quickstart
             {
                 throw new ArgumentException(nameof(user.SubjectId), "Cannot store users without a SubjectId");
             }
+            // Test if user exists. This is of course not transactional/multi thread safe.
+            var existing = FindByUsername(user.Username);
+            if (existing != null && existing.SubjectId != user.SubjectId)
+            {
+                throw new ArgumentException("Duplicate users");
+            }
+
             var deletes = new List<Attribute>();
             var attributes = new List<ReplaceableAttribute>();
             AddForUpdateOrDelete(IS_ACTIVE, user.IsActive ? "true" : "false", attributes, deletes);
@@ -165,32 +173,74 @@ namespace IdentityServer.Quickstart
             AddForUpdateOrDelete(PROVIDER_SUBJECTID_FIELD, user.ProviderSubjectId, attributes, deletes);
             AddForUpdateOrDelete(CLAIMS_FIELD,  user.Claims == null ? null : user.ProviderSubjectId, attributes, deletes);
 
+            await StoreInSimpleDb(user.SubjectId, attributes, deletes);
+        }
+
+        private async Task StoreInSimpleDb(string subjectId, List<ReplaceableAttribute> attributes, List<Attribute> deletes)
+        {
             if (attributes.Count > 0)
             {
-                var putRequest = new PutAttributesRequest(_domainName, user.SubjectId, attributes);
+                var putRequest = new PutAttributesRequest(_domainName, subjectId, attributes);
                 await _simpleDbClient.PutAttributesAsync(putRequest);
             }
 
             if (deletes.Count > 0)
             {
-                var deleteRequest = new DeleteAttributesRequest(_domainName, user.SubjectId, deletes);
+                var deleteRequest = new DeleteAttributesRequest(_domainName, subjectId, deletes);
                 await _simpleDbClient.DeleteAttributesAsync(deleteRequest);
             }
         }
 
+        public async Task StoreUserInformation(string subjectId, UserInformation userInfo)
+        {
+            var deletes = new List<Attribute>();
+            var attributes = new List<ReplaceableAttribute>();
+            AddForUpdateOrDelete(PHONE_FIELD, userInfo.Phone, attributes, deletes);
+            AddForUpdateOrDelete(ADDRESS_FIELD, userInfo.Address, attributes, deletes);
+            AddForUpdateOrDelete(EMAIL_FIELD, userInfo.Email, attributes, deletes);
+
+            await StoreInSimpleDb(subjectId, attributes, deletes);
+        }
+
+        public async Task<UserInformation> GetUserInformation(string subjectId)
+        {
+            var request = new SelectRequest
+            {
+                SelectExpression = $"SELECT {ADDRESS_FIELD}, {PHONE_FIELD}, {EMAIL_FIELD} " +
+                                   $"FROM `{_domainName}` " +
+                                   $"WHERE itemName() = '{subjectId}'",
+            };
+            var retrievalTask = await _simpleDbClient.SelectAsync(request);
+
+            if (retrievalTask.Items.Count == 0)
+            {
+                return null;
+            }
+
+            if (retrievalTask.Items.Count > 1)
+            {
+                throw new ArgumentException("More than one match.");
+            }
+
+            var attributes = retrievalTask.Items[0].Attributes;
+            var result = new UserInformation
+            {
+                Address = attributes.SingleOrDefault(attr => attr.Name == ADDRESS_FIELD)? .Value,
+                Phone = attributes.SingleOrDefault(attr => attr.Name == PHONE_FIELD)?.Value,
+                Email = attributes.SingleOrDefault(attr => attr.Name == EMAIL_FIELD)?.Value,
+            };
+
+            return result;
+        }
+
         public Task DeleteBySubjectId(string subjectId)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private static string CanonicalizeUsername(string username)
         {
             return username.ToLower(CultureInfo.InvariantCulture);
-        }
-
-        private class UserDTO
-        {
-
         }
     }
 }
