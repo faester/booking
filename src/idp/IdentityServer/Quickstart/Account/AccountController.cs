@@ -178,11 +178,11 @@ namespace IdentityServerHost.Quickstart.UI
         /// Show signup page
         /// </summary>
         [HttpGet]
-        [ValidateAntiForgeryToken]
-        public IActionResult SignUp()
+        public IActionResult SignUp(string returnUrl = "/")
         {
             // build a model so the logout page knows what to display
             var vm = new SignupViewModel();
+            vm.ReturnUrl = returnUrl;
             return View(vm);
         }
 
@@ -213,9 +213,17 @@ namespace IdentityServerHost.Quickstart.UI
 
             await _users.Store(testUser);
             await _users.StoreUserInformation(testUser.SubjectId, vm);
-            return View(vm);
-        }
 
+            LoginInputModel loginModel = new LoginInputModel
+            {
+                Password = vm.Password, 
+                ReturnUrl = "/",
+                RememberLogin = true,
+                Username = vm.Username,
+            };
+            return await Login(loginModel, LoginInputModel.LoginButtonName);
+
+        }
 
         /// <summary>
         /// Show logout page

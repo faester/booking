@@ -72,6 +72,11 @@ namespace IdentityServer.Quickstart
 
             item.Wait();
 
+            if (!item.Result.Attributes.Any())
+            {
+                return null;
+            }
+
             return Translate(subjectIdGuid, item.Result.Attributes);
         }
 
@@ -233,9 +238,18 @@ namespace IdentityServer.Quickstart
             return result;
         }
 
-        public Task DeleteBySubjectId(string subjectId)
+        public async Task DeleteBySubjectId(string subjectId)
         {
-            throw new NotImplementedException();
+            var request = new GetAttributesRequest(_domainName, subjectId);
+            var retrievalTask = await _simpleDbClient.GetAttributesAsync(request);
+
+
+            var deleteRequest = new DeleteAttributesRequest(_domainName, subjectId)
+            {
+                Attributes = retrievalTask.Attributes
+            };
+
+            await _simpleDbClient.DeleteAttributesAsync(deleteRequest);
         }
 
         private static string CanonicalizeUsername(string username)
