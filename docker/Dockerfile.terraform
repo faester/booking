@@ -41,13 +41,14 @@ RUN mkdir bin
 
 # Copy terraform binaries
 COPY --from=buildenv-tf terraform13/terraform /usr/bin/terraform
+COPY docker/stop-tasks.sh /home/terraform/bin
 
 # Copy utility scripts & change ownership
 RUN chown -R terraform:terraform /home/terraform/bin
+
+RUN chmod a+x /home/terraform/bin/stop-tasks.sh
 
 # Switch to terraform user
 USER terraform
 RUN git config --global user.email "faester@gmail.com"
 RUN git config --global user.name "Morten Hjorth Fæster"
-
-

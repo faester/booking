@@ -1,5 +1,5 @@
 locals {
-  ecr_repositories = ["identityserver"]
+  ecr_repositories = ["identity-server"]
   vpc_endpoints = ["ecs-agent",
     "ecs-telemetry",
     "ecs",
@@ -42,9 +42,11 @@ provider "aws" {
 }
 
 resource aws_subnet booking-a {
-  vpc_id            = aws_vpc.booking.id
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = "eu-west-1a"
+  vpc_id                  = aws_vpc.booking.id
+  cidr_block              = "10.0.0.0/24"
+  availability_zone       = "eu-west-1a"
+  map_public_ip_on_launch = true
+
 
   tags = {
     Name = "booking-a"
@@ -52,9 +54,10 @@ resource aws_subnet booking-a {
 }
 
 resource aws_subnet booking-b {
-  vpc_id            = aws_vpc.booking.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "eu-west-1b"
+  vpc_id                  = aws_vpc.booking.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "eu-west-1b"
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "booking-b"
@@ -93,6 +96,7 @@ resource "aws_security_group" "vpc_endpoint_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
 }
 
 resource "aws_vpc_endpoint" "vpc_endpoints" {
@@ -100,8 +104,8 @@ resource "aws_vpc_endpoint" "vpc_endpoints" {
   vpc_id       = aws_vpc.booking.id
   service_name = "com.amazonaws.eu-west-1.${each.value}"
 
-  vpc_endpoint_type = each.value == "s3" ? "Gateway" : "Interface"
-  #private_dns_enabled = true
+  vpc_endpoint_type   = each.value == "s3" ? "Gateway" : "Interface"
+  private_dns_enabled = each.value != "s3"
 
   security_group_ids = each.value == "s3" ? [] : [aws_security_group.vpc_endpoint_sg.id]
 
@@ -119,6 +123,23 @@ resource aws_internet_gateway gw {
   tags = {
     Name = "main"
   }
+}
+
+resource "aws_eip" "nateip" {
+  vpc = true
+  tags = {
+    Name = "booking-main-eip-natgw"
+  }
+  depends_on = [aws_internet_gateway.gw, ]
+}
+
+resource "aws_nat_gateway" "natgw" {
+  allocation_id = aws_eip.nateip.id
+  subnet_id     = aws_subnet.booking-a.id
+  tags = {
+    Name = "booking-main-natgw"
+  }
+  depends_on = [aws_internet_gateway.gw, ]
 }
 
 resource aws_route_table booking_public {
