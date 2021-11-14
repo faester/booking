@@ -41,8 +41,8 @@ data "aws_iam_policy_document" "ecs_role_policy" {
     ]
     resources = [
       "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.users.name}",
-      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.consent.name}",
-      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.state.name}",
+      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.userinformation.name}",
+      "arn:aws:sdb:*:${var.account_id}:domain/${aws_simpledb_domain.grants.name}",
     ]
   }
   statement {
@@ -65,12 +65,12 @@ resource "aws_simpledb_domain" "users" {
   name = "users"
 }
 
-resource "aws_simpledb_domain" "consent" {
-  name = "consent"
+resource "aws_simpledb_domain" "userinformation" {
+  name = "userinformation"
 }
 
-resource "aws_simpledb_domain" "state" {
-  name = "state"
+resource "aws_simpledb_domain" "grants" {
+  name = "grants"
 }
 
 resource "aws_sqs_queue" "events" {
