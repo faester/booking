@@ -50,3 +50,10 @@ Use
 
 
 Credentials are assumed to be present in `~/.aws/credentials` under the profile `mfaester`.
+
+# Manual tests 
+Obtain a token using client credentials: 
+```
+ curl -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=convention-reader&scope=convention-admin" -u "convention-reader:secret01"  https://identity-server.mfaester.dk/connect/token 
+```
+This emulates server-to-server invokations.
