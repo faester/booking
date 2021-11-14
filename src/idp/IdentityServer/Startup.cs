@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
+using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
 using IdentityServer4.Models;

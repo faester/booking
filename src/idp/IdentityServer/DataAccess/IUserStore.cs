@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
-using IdentityServerHost.Quickstart.UI;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public interface IUserStore
     {

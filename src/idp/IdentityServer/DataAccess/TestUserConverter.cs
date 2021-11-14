@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Security.Claims;
 using ConventionApiLibrary;
 using IdentityServer.Quickstart.Account;
-using IdentityServer4.Test;
-using Newtonsoft.Json;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public class UserInfoConverter : BaseConverter<UserInformation>, ISimpleDbConverter<UserInformation>
     {

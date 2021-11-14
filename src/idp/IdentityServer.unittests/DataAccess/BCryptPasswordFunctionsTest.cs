@@ -1,8 +1,8 @@
 using FluentAssertions;
-using IdentityServer.Quickstart;
+using IdentityServer.DataAccess;
 using Xunit;
 
-namespace IdentityServer.unittests.QuickStart
+namespace IdentityServer.unittests.DataAccess
 {
     public class BCryptPasswordFunctionsTest
     {

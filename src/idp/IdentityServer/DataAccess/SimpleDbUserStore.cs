@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Amazon.SimpleDB.Model;
 using ConventionApiLibrary;
 using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
-using Microsoft.AspNetCore.Mvc;
-using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public class SimpleDbUserStore : IUserStore
     {

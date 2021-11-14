@@ -7,14 +7,14 @@ using Amazon;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
 using ConventionApiLibrary;
-using Xunit;
 using FluentAssertions;
-using IdentityServer.Quickstart;
+using IdentityServer.DataAccess;
 using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
 using Moq;
+using Xunit;
 
-namespace IdentityServer.unittests.QuickStart
+namespace IdentityServer.unittests.DataAccess
 {
     public class SimpleDbUserStoreTests
     {

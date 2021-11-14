@@ -1,4 +1,4 @@
-﻿namespace IdentityServer.Quickstart
+﻿namespace IdentityServer.DataAccess
 {
     /// <summary>
     /// Describes a way of storing a password

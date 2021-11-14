@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityServer.DataAccess;
 using IdentityServer.Quickstart;
 using IdentityServer4.Test;
 

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Amazon.SimpleDB.Model;
-using IdentityServer4.Test;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public abstract class BaseConverter<T>
     {
