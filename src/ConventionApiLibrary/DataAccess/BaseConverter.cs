@@ -6,7 +6,7 @@ using Attribute = Amazon.SimpleDB.Model.Attribute;
 
 namespace ConventionApiLibrary.DataAccess
 {
-    public abstract class BaseConverter<T>
+    public abstract class BaseConverter<T> : ISimpleDbConverter<T>
     {
         private readonly Func<string, T> _factory;
         private readonly Func<T, string> _idPicker;
@@ -18,6 +18,11 @@ namespace ConventionApiLibrary.DataAccess
         {
             _factory = factory;
             _idPicker = idPicker;
+        }
+
+        public string GetSimpleDbFieldNameFor(Expression<Func<T, object>> dtoField)
+        {
+            return GetSimpleDbName(dtoField);
         }
 
         public T CreateInstance(string identifier)

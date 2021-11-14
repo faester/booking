@@ -83,7 +83,7 @@ namespace ConventionApiLibrary.DataAccess
             }
         }
 
-        public FilterBuilder SelectItemsBySimpleFilter(Expression<Func<T, object>> dtoField, string filterValue)
+        public FilterBuilder Where(Expression<Func<T, object>> dtoField, string filterValue)
         {
             return new FilterBuilder(dtoField, filterValue, _timeout, _converter, _domainName, _simpleDbClient);
         }
@@ -112,13 +112,19 @@ namespace ConventionApiLibrary.DataAccess
                 _dtoFieldNameInSimpleDb = _converter.GetSimpleDbFieldNameFor(_dtoField);
             }
 
+            public FilterBuilder AndAlso(Expression<Func<T, object>> dtoField, string filterValue)
+            {
+                return new FilterBuilder(dtoField, filterValue, _timeout, _converter, _domainName, _simpleDbClient, this);
+            }
+
             public IEnumerable<T> Select()
             {
                 var query = $"SELECT * FROM `{_domainName}` WHERE `{_dtoFieldNameInSimpleDb}` = \"{_filterValue}\"";
                 var current = this;
                 while (current._parent != null)
                 {
-                    query += $" AND ``{_parent._domainName}`` = \"{_parent._filterValue}\"";
+                    query += $" AND `{_parent._dtoFieldNameInSimpleDb}` = \"{_parent._filterValue}\"";
+                    current = current._parent;
                 }
                 var request = new SelectRequest(query, false);
 
