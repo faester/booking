@@ -215,9 +215,9 @@ namespace IdentityServerHost.Quickstart.UI
                 IsActive = false, 
                 SubjectId = Guid.NewGuid().ToString(),
             };
-
+            vm.SubjectId = testUser.SubjectId;
             await _users.Store(testUser);
-            await _users.StoreUserInformation(testUser.SubjectId, vm);
+            await _users.StoreUserInformation(vm);
 
             LoginInputModel loginModel = new LoginInputModel
             {

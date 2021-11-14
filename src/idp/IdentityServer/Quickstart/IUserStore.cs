@@ -19,7 +19,7 @@ namespace IdentityServer.Quickstart
         TestUser FindByUsername(string username);
         Task Store(TestUser user);
 
-        Task StoreUserInformation(string subjectId, UserInformation signupViewModel);
+        Task StoreUserInformation(UserInformation signupViewModel);
         Task<UserInformation> GetUserInformation(string subjectId);
     }
 }

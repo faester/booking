@@ -6,6 +6,12 @@ namespace IdentityServer.Quickstart.Account
 {
     public class UserInformation
     {
+        public string SubjectId
+        {
+            get;
+            set;
+        }
+
         [Required]
         [RegularExpression(pattern: @"[a-z0-9_.-]+@[a-z0-9_.-]+\.[a-z]{2,}", ErrorMessage = "Email does not look like an e-mail")]
         public string Email { get; set; }

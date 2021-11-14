@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
+using ConventionApiLibrary;
 using Xunit;
 using FluentAssertions;
 using IdentityServer.Quickstart;
 using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
-using IdentityServerHost.Quickstart.UI;
 using Moq;
 
 namespace IdentityServer.unittests.QuickStart
@@ -45,7 +45,14 @@ namespace IdentityServer.unittests.QuickStart
 
         public SimpleDbUserStoreTests()
         {
-            _subject = new SimpleDbUserStore(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value, _pwdFunctions.Object, SimpleDbUserStoreTestsSetup.DomainForTest);
+            var testUserStore = new SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value,
+                SimpleDbUserStoreTestsSetup.DomainForTest,
+                new TestUserConverter());
+            var userInfoStore = new SimpleDbBasedStore<UserInformation>(
+                    SimpleDbUserStoreTestsSetup.SimpleDbClient.Value,
+                    SimpleDbUserStoreTestsSetup.DomainForTest,
+                    new UserInfoConverter());
+            _subject = new SimpleDbUserStore(_pwdFunctions.Object, testUserStore, userInfoStore);
         }
 
         [Fact]
@@ -132,7 +139,8 @@ namespace IdentityServer.unittests.QuickStart
                 Password = "HelloWorld021938",
             };
             _pwdFunctions.Setup(x => x.CreateHash(It.IsAny<string>())).Returns("hashFromDummy");
-            _pwdFunctions.Setup(x => x.IsHashedWithThisFunction(It.IsAny<string>())).Returns(true);
+            _pwdFunctions.Setup(x => x.IsHashedWithThisFunction(original.Password)).Returns(false);
+            _pwdFunctions.Setup(x => x.IsHashedWithThisFunction(It.Is<string>(s => s != original.Password))).Returns(true);
             _pwdFunctions.Setup(x => x.CompareHashedPassword(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             await _subject.Store(original);
 
@@ -153,7 +161,8 @@ namespace IdentityServer.unittests.QuickStart
                 SubjectId = Guid.NewGuid().ToString(),
                 Password = "HelloWorld021938",
             };
-            _pwdFunctions.Setup(x => x.IsHashedWithThisFunction(It.IsAny<string>())).Returns(true);
+            _pwdFunctions.Setup(x => x.IsHashedWithThisFunction(original.Password)).Returns(false);
+            _pwdFunctions.Setup(x => x.CreateHash(original.Password)).Returns("ørebjørn");
             _pwdFunctions.Setup(x => x.CompareHashedPassword(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
             await _subject.Store(original);
 
@@ -262,23 +271,25 @@ namespace IdentityServer.unittests.QuickStart
         [Fact]
         public async Task DeleteBySubjectId_ThenDataIsGone()
         {
-            var original = new TestUser
+            var testUser = new TestUser()
             {
-                Username = nameof(DeleteBySubjectId_ThenDataIsGone),
-                SubjectId = Guid.NewGuid().ToString()
+                SubjectId = Guid.NewGuid().ToString(), Username = nameof(DeleteBySubjectId_ThenDataIsGone) + "@example.com",
             };
-            await _subject.Store(original);
-            var userInfo = new UserInformation();
-            userInfo.Address = "Strunseegade 53, 3";
-            userInfo.Email = "oofo@gmail.com";
-            userInfo.Phone = "+4529641657";
-            await _subject.StoreUserInformation(original.SubjectId, userInfo);
+            var userInfo = new UserInformation
+            {
+                Address = "Strunseegade 53, 3",
+                Email = "oofo@gmail.com",
+                Phone = "+4529641657",
+                SubjectId = testUser.SubjectId,
+            };
+            await _subject.Store(testUser);
+            await _subject.StoreUserInformation(userInfo);
 
-            await _subject.DeleteBySubjectId(original.SubjectId);
+            await _subject.DeleteBySubjectId(userInfo.SubjectId);
 
-            (await _subject.GetUserInformation(original.SubjectId)).Should().BeNull("GetByUserInformation");
-            _subject.FindBySubjectId(original.SubjectId).Should().BeNull("FindBySubjectId should not fetch user");
-            _subject.FindByUsername(original.Username).Should().BeNull("FindByUsername");
+            (await _subject.GetUserInformation(userInfo.SubjectId)).Should().BeNull("GetByUserInformation");
+            _subject.FindBySubjectId(userInfo.SubjectId).Should().BeNull("FindBySubjectId should not fetch user");
+            _subject.FindByUsername(testUser.Username).Should().BeNull("FindByUsername");
         }
 
         [Fact]
@@ -287,10 +298,11 @@ namespace IdentityServer.unittests.QuickStart
             string subjectId = Guid.NewGuid().ToString();
             UserInformation userInfo = new UserInformation
             {
-                Address = "My test address", Email = "faester@gmail.com", Phone = "+4576767676"
+                Address = "My test address", Email = "faester@gmail.com", Phone = "+4576767676", 
+                SubjectId = subjectId,
             };
 
-            await _subject.StoreUserInformation(subjectId , userInfo);
+            await _subject.StoreUserInformation(userInfo);
 
             var retrieved = await _subject.GetUserInformation(subjectId);
             retrieved.Phone.Should().Be(userInfo.Phone);
