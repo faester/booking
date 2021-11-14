@@ -8,9 +8,11 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
+using ConventionApiLibrary;
 using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
@@ -53,7 +55,13 @@ namespace IdentityServer
 
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
-            services.AddSingleton<IPasswordFunctions, BCryptPasswordFunctions>();
+            services.AddScoped<SimpleDbBasedStore<UserInformation>>();
+            services.AddScoped<SimpleDbUserStore>();
+            services.AddScoped<ISimpleDbDomainName>(ctxt => new SimpleDbDomainName("users"));
+            services.AddScoped<SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>>();
+            services.AddScoped<ISimpleDbConverter<SimpleDbUserStore.TestUserDto>, TestUserConverter>();
+            services.AddScoped<ISimpleDbConverter<UserInformation>, UserInfoConverter>();
+            services.AddScoped<IPasswordFunctions, BCryptPasswordFunctions>();
             services.AddScoped<IPersistedGrantStore, SimpleDbPersistedGrantStore>();
             services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
 

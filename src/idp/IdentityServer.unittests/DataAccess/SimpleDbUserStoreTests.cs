@@ -21,20 +21,25 @@ namespace IdentityServer.unittests.DataAccess
         public class SimpleDbUserStoreTestsSetup
         {
             private static Lazy<IAmazonSimpleDB> _instance;
+            private static SimpleDbDomainName _sdbDomainInstance;
             public static Lazy<IAmazonSimpleDB> SimpleDbClient => _instance ??= new Lazy<IAmazonSimpleDB>(Initialize);
-            public const string DomainForTest = "integrationtests";
+
+            public static ISimpleDbDomainName DomainForTest
+            {
+                get => _sdbDomainInstance ??= new SimpleDbDomainName("integrationtests");
+            }
 
             private static IAmazonSimpleDB Initialize()
             {
                 var simpleDbClient = new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), RegionEndpoint.EUWest1);
                 var result = simpleDbClient.ListDomainsAsync();
                 result.Wait(TimeSpan.FromSeconds(30));
-                if (result.Result.DomainNames.Contains(DomainForTest))
+                if (result.Result.DomainNames.Contains(DomainForTest.DomainName))
                 {
-                    simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTest)).Wait();
+                    simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTest.DomainName)).Wait();
                 }
 
-                simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTest)).Wait();
+                simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTest.DomainName)).Wait();
                 return simpleDbClient;
             }
         }

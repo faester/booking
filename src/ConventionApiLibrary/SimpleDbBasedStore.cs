@@ -19,6 +19,21 @@ namespace ConventionApiLibrary
         T CreateInstance(string name);
     }
 
+    public interface ISimpleDbDomainName
+    {
+        string DomainName { get; }
+    }
+    
+    public class SimpleDbDomainName : ISimpleDbDomainName
+    {
+        public SimpleDbDomainName(string domainName)
+        {
+            DomainName = domainName;
+        }
+
+        public string DomainName { get; }
+    }
+
     public class SimpleDbBasedStore<T> where T : class
     {
         private readonly IAmazonSimpleDB _simpleDbClient;
@@ -26,10 +41,10 @@ namespace ConventionApiLibrary
         private readonly ISimpleDbConverter<T> _converter;
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(3);
 
-        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, string domainName, ISimpleDbConverter<T> converter)
+        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, ISimpleDbDomainName domainName, ISimpleDbConverter<T> converter)
         {
             _simpleDbClient = simpleDbClient;
-            _domainName = domainName;
+            _domainName = domainName.DomainName;
             _converter = converter;
         }
 
