@@ -36,3 +36,8 @@ tag_for_ecr: build_docker_images
 publish: build_docker_images tag_for_ecr
 	docker run -ti --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local aws ecr get-login-password --region eu-west-1 --profile mfaester |docker login --username AWS --password-stdin 539839626842.dkr.ecr.eu-west-1.amazonaws.com
 	docker push 539839626842.dkr.ecr.eu-west-1.amazonaws.com/identity-server:latest
+
+stop-tasks:  terraform_docker
+	docker run -t --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local /home/terraform/bin/stop-tasks.sh
+
+deploy: stop-tasks publish
