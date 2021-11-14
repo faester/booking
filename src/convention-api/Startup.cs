@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace convention_api
 {
@@ -24,23 +22,21 @@ namespace convention_api
         {
             services.AddControllers();
 
+            services.AddAuthentication(opts =>
+            {
+                opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
+            options =>
+                         {
+                             options.MetadataAddress = "https://identity-server.mfaester.dk/.well-known/openid-configuration";
+                             options.Audience = "https://identity-server.mfaester.dk/resources";
+                         });
+            services.RegisterAuthorizationHandlers();
             services.AddAuthorization(opts =>
             {
-                //opts.DefaultPolicy = "bearer";
-                Authorization.PoliciesSetup.EnablePolicies(opts);
-            }).RegisterAuthorizationHandlers();
-            services.AddAuthentication(
-                    opt =>
-                    {
-                        opt.DefaultChallengeScheme = "oidc";
-                        opt.DefaultAuthenticateScheme = "Bearer";
-                    })
-                .AddJwtBearer("oidc",
-                    options =>
-                    {
-                        options.MetadataAddress = "https://identity-server.mfaester.dk/.well-known/openid-configuration";
-                        options.Audience = "convention-api";
-                    });
+                opts.EnablePolicies();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,9 +12,15 @@ namespace convention_api.Authorization
 {
     public static class PoliciesSetup
     {
-        public static void EnablePolicies(AuthorizationOptions options)
+        public static void EnablePolicies(this AuthorizationOptions options)
         {
-            options.AddPolicy(PolicyNames.Administration, policy => policy.Requirements.Add(new AdministratorRequirement()));
+            options.AddPolicy(PolicyNames.Administration,
+                policy =>
+                {
+                    policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                    policy.Requirements.Add(new AdministratorRequirement());
+                });
+
         }
 
         public static IServiceCollection RegisterAuthorizationHandlers(this IServiceCollection collection)
@@ -30,7 +38,7 @@ namespace convention_api.Authorization
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AdministratorRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == "role" && claim.Value == "convention-admin"))
+            if (context.User.HasClaim(claim => claim.Type == "scope" && claim.Value == "convention-admin"))
             {
                 context.Succeed(requirement);
             }
@@ -43,6 +51,7 @@ namespace convention_api.Authorization
         }
     }
 
+    
     public static class PolicyNames
     {
         public const string Administration = "Administration";
