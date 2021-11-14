@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace convention_api.Controllers
 {
     [ApiController]
-    [Route("/weatherforecast/ [controller]")]
+    [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -24,7 +24,7 @@ namespace convention_api.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/")]
+        [HttpGet("")]
         
         public IEnumerable<WeatherForecast> Get()
         {
@@ -38,7 +38,7 @@ namespace convention_api.Controllers
             .ToArray();
         }
 
-        [HttpGet("/secured")]
+        [HttpGet("secured")]
         [Authorize(Policy = PolicyNames.Administration)]
         public IEnumerable<WeatherForecast> GetSecured()
         {

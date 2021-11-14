@@ -1,4 +1,6 @@
+using System;
 using convention_api.Authorization;
+using convention_api.Clients.BreweryClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +39,7 @@ namespace convention_api
             {
                 opts.EnablePolicies();
             });
+            services.AddSingleton<IBreweryClient>(ctxt => new CachingBreweryClient(new BreweryClient(new Uri("https://api.openbrewerydb.org/")), TimeSpan.FromHours(1)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
