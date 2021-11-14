@@ -4,8 +4,11 @@
 
 using System.Security.Cryptography;
 using Amazon.SimpleDB;
+using Amazon.SimpleSystemsManagement;
+using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +31,11 @@ namespace IdentityServer
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();
 
+            services.AddDataProtection(options =>
+            {
+                options.ApplicationDiscriminator = "idp";
+            });
+
             var builder = services.AddIdentityServer(options =>
             {
                 // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
@@ -41,6 +49,13 @@ namespace IdentityServer
             services.AddScoped<IUserStore, SimpleDbUserStore>();
             services.AddSingleton<IPasswordFunctions, BCryptPasswordFunctions>();
             services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
+
+            services.AddSingleton<IXmlRepository, SsmDataprotection>(sers => new SsmDataprotection("/idp/ixmlrepository/", CreateSsmClient()));
+        }
+
+        private IAmazonSimpleSystemsManagement CreateSsmClient()
+        {
+            return new AmazonSimpleSystemsManagementClient(SecretsRetriever.GetCredentials());
         }
 
         private SigningCredentials CreateSigningCredentials()
