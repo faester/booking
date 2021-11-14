@@ -7,7 +7,7 @@ build_dotnet_core_projects:
 	dotnet build src
 
 build_docker_images: 
-	docker build . -f docker/Dockerfile.build -t convention-api:local
+	docker build . -f docker/Dockerfile.build -t convention-api-build:local
 	docker build . -f docker/Dockerfile.identityserver -t identity-server:local
 	docker build . -f docker/Dockerfile.convention-api -t convention-api:local
 

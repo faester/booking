@@ -1,5 +1,5 @@
 resource aws_ecs_task_definition service {
-  family = "booking"
+  family = var.docker_image
   container_definitions = jsonencode([
     {
       name      = var.subdomain
