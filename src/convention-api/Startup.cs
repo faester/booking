@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication;
 
 namespace convention_api
 {
@@ -19,6 +20,10 @@ namespace convention_api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services
+                .AddAuthentication("Bearer")
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,8 +39,6 @@ namespace convention_api
             app.UseRouting();
 
             app.UseAuthorization();
-
-
 
             app.UseEndpoints(endpoints =>
             {
