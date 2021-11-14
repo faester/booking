@@ -3,12 +3,13 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using convention_api.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace convention_api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/weatherforecast/ [controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -23,7 +24,8 @@ namespace convention_api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("/")]
+        
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -34,6 +36,13 @@ namespace convention_api.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpGet("/secured")]
+        [Authorize(Policy = PolicyNames.Administration)]
+        public IEnumerable<WeatherForecast> GetSecured()
+        {
+            return Get();
         }
     }
 }

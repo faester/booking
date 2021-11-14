@@ -9,14 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "idp\Ident
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer.unittests", "idp\IdentityServer.unittests\IdentityServer.unittests.csproj", "{6471FDB5-FE27-4049-A376-BBDE86CCEC31}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "event-api", "event-api", "{476E7902-7421-4F7F-8B90-A01E2FDF76E9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{476E7902-7421-4F7F-8B90-A01E2FDF76E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "convention-api", "convention-api\convention-api.csproj", "{C13C9EC3-3241-42DE-AF55-5758701EA4AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "convention-api", "convention-api\convention-api.csproj", "{C13C9EC3-3241-42DE-AF55-5758701EA4AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "convention-api.UnitTests", "convention-api.UnitTests\convention-api.UnitTests.csproj", "{97854696-FFD4-4459-A58F-1C3A7DB20B53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "convention-api.UnitTests", "convention-api.UnitTests\convention-api.UnitTests.csproj", "{97854696-FFD4-4459-A58F-1C3A7DB20B53}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{A720DA41-C54C-4BE2-AA79-B790ACEF6097}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConventionApiLibrary", "ConventionApiLibrary\ConventionApiLibrary.csproj", "{289E781F-F2F9-4767-9058-F328A1D1C520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConventionApiLibrary", "ConventionApiLibrary\ConventionApiLibrary.csproj", "{289E781F-F2F9-4767-9058-F328A1D1C520}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -17,6 +17,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -39,11 +40,6 @@ namespace IdentityServer
         {
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();
-
-            services.AddDataProtection(options =>
-            {
-                options.ApplicationDiscriminator = "idp";
-            });
 
             var builder = services.AddIdentityServer(options =>
             {
