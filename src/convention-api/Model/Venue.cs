@@ -59,7 +59,8 @@ namespace convention_api.Model
                 case BreweryType.Closed:
                     return 0;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(breweryBreweryType), breweryBreweryType, null);
+                    return -1;
+                    //throw new ArgumentOutOfRangeException(nameof(breweryBreweryType), breweryBreweryType, null);
             }
         }
     }

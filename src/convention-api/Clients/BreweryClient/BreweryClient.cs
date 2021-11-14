@@ -24,6 +24,8 @@ namespace convention_api.Clients.BreweryClient
 
         public Task<IEnumerable<Brewery>> GetBreweriesByCity(string cityName)
         {
+            if (cityName == null) { throw new ArgumentNullException(nameof(cityName)); }
+
             string cacheKey = nameof(CachingBreweryClient) + nameof(GetBreweriesByCity) +  cityName.ToLower();
 
             return GetFromCacheOrInsert(cacheKey, 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using convention_api.Authorization;
 using convention_api.Clients.BreweryClient;
+using convention_api.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,16 +26,29 @@ namespace convention_api.Controllers
 
         [HttpGet("")]
         [Authorize(Policy = PolicyNames.Administration)]
-        public async Task<IEnumerable<WeatherForecast>> Get(string city)
+        public async Task<IEnumerable<Venue>> Get(string city)
         {
-            var items = _breweryClient.GetBreweriesByCity(city);
+            var items = await _breweryClient.GetBreweriesByCity(city);
+
+            return items
+                .Where(x => x.BreweryType != BreweryType.Closed
+                            && x.BreweryType != BreweryType.Planning
+                            && x.BreweryType != BreweryType.Proprietor
+                            && x.BreweryType != BreweryType.None)
+                .Select(Venue.From);
         }
 
-        [HttpGet("secured")]
-        [Authorize(Policy = PolicyNames.Administration)]
-        public IEnumerable<WeatherForecast> GetSecured()
+        [HttpGet("bycity")]
+        public async Task<IEnumerable<Venue>> GetByCity(string city)
         {
-            return Get();
+            var items = await _breweryClient.GetBreweriesByCity(city);
+
+            return items
+                //.Where(x => x.BreweryType != BreweryType.Closed
+                //            && x.BreweryType != BreweryType.Planning
+                //            && x.BreweryType != BreweryType.Proprietor
+                //            && x.BreweryType != BreweryType.None)
+                .Select(Venue.From);
         }
     }
 }

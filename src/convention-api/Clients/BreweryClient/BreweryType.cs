@@ -1,7 +1,9 @@
-﻿using System.Runtime.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 
 namespace convention_api.Clients.BreweryClient
 {
+    [DataContract]
     public enum BreweryType
     {
         None,
