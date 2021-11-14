@@ -20,6 +20,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer.DataAccess;
 using IdentityServer.Quickstart;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
 
 namespace IdentityServerHost.Quickstart.UI
@@ -119,8 +120,6 @@ namespace IdentityServerHost.Quickstart.UI
                 {
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
 
-                    var userInfo = await _users.GetUserInformation(user.SubjectId);
-
                     // only set explicit expiration here if user chooses "remember me". 
                     // otherwise we rely upon expiration configured in cookie middleware.
                     AuthenticationProperties props = null;
@@ -132,6 +131,12 @@ namespace IdentityServerHost.Quickstart.UI
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
                         };
                     };
+
+                    var userInfo = (await _users.GetUserInformation(user.SubjectId))
+                                   ?? new UserInformation
+                                   {
+                                       SubjectId = user.SubjectId
+                                   };
 
                     // issue authentication cookie with subject ID and username
                     var isuser = new IdentityServerUser(user.SubjectId)
@@ -282,6 +287,32 @@ namespace IdentityServerHost.Quickstart.UI
             }
 
             return View("LoggedOut", vm);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Edit()
+        {
+            var userInfo = await _users.GetUserInformation(User.GetSubjectId());
+
+            return View(userInfo);
+        }
+
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Edit(UserInformation userInformation)
+        {
+            // Don't want users to alter subject id and modify other users data.
+            userInformation.SubjectId = User.GetSubjectId(); 
+
+            if (!ModelState.IsValid)
+            {
+                return View(userInformation);
+            }
+
+            _users.StoreUserInformation(userInformation);
+            return View(userInformation);
         }
 
         [HttpGet]

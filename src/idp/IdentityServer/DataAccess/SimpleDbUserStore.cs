@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ConventionApiLibrary;
+using ConventionApiLibrary.DataAccess;
 using IdentityServer.Quickstart.Account;
+using IdentityServer4.Models;
 using IdentityServer4.Test;
 
 namespace IdentityServer.DataAccess
@@ -93,10 +95,11 @@ namespace IdentityServer.DataAccess
         public TestUser FindByUsername(string username)
         {
             username = CanonicalizeUsername(username);
-            return _simpleDbStore.SelectItemsBySimpleFilter(x => x.Username, username)
+            return _simpleDbStore.Where(x => x.Username, username)
+                .Select()
                 .FirstOrDefault()
                 ?.ToTestUser();
-        }
+        } 
 
         public Task Store(TestUser user)
         {

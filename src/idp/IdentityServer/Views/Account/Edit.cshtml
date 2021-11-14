@@ -1,0 +1,63 @@
+@model IdentityServer.Quickstart.Account.UserInformation
+
+<div class="signup-page">
+    <div class="lead">
+        <h1>Edit user info</h1>
+    </div>
+
+    <partial name="_ValidationSummary" />
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Local Account</h2>
+                </div>
+
+                <div class="card-body">
+                    <form asp-route="Login">
+                        <div class="form-group">
+                            <label asp-for="Phone"></label>
+                            <input class="form-control" placeholder="Phone" asp-for="Phone" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Address"></label>
+                            <input type="text" class="form-control" placeholder="Address" asp-for="Address" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email"></label>
+                            <input type="text" class="form-control" placeholder="Email" asp-for="Email" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="IsValidatedUser">
+                                <label class="form-check-label" asp-for="IsValidatedUser">
+                                    Is validated
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="IsSpeaker">
+                                <label class="form-check-label" asp-for="IsSpeaker">
+                                    Is speaker
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="IsAdministrator">
+                                <label class="form-check-label" asp-for="IsAdministrator">
+                                    Administrator
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" name="button" value="Save">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

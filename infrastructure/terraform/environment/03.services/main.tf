@@ -36,4 +36,8 @@ module identity_server {
   account_id = data.aws_caller_identity.current.account_id
 }
 
-
+module convention_api {
+  source     = "../../services/convention-api"
+  vpc_id     = local.vpc_id
+  account_id = data.aws_caller_identity.current.account_id
+}

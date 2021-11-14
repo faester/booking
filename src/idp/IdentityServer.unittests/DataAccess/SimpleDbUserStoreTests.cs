@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
-using ConventionApiLibrary;
+using ConventionApiLibrary.DataAccess;
 using FluentAssertions;
 using IdentityServer.DataAccess;
 using IdentityServer.Quickstart.Account;
@@ -21,12 +21,24 @@ namespace IdentityServer.unittests.DataAccess
         public class SimpleDbUserStoreTestsSetup
         {
             private static Lazy<IAmazonSimpleDB> _instance;
-            private static SimpleDbDomainName _sdbDomainInstance;
+            private static SimpleDbDomainName<SimpleDbUserStore.TestUserDto> _sdbDomainTestUser;
+            private static SimpleDbDomainName<UserInformation> _domainForUserInformation;
+            private static SimpleDbDomainName<SimpleDbBasedStoreTest.TestDataClass> _domainForTestDataClass;
             public static Lazy<IAmazonSimpleDB> SimpleDbClient => _instance ??= new Lazy<IAmazonSimpleDB>(Initialize);
 
-            public static ISimpleDbDomainName DomainForTest
+            public static ISimpleDbDomainName<SimpleDbUserStore.TestUserDto> DomainForTestUser
             {
-                get => _sdbDomainInstance ??= new SimpleDbDomainName("integrationtests");
+                get => _sdbDomainTestUser ??= new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("integrationtests");
+            }
+
+            public static ISimpleDbDomainName<UserInformation> DomainForUserInformation
+            {
+                get => _domainForUserInformation??= new SimpleDbDomainName<UserInformation>("integrationtests");
+            }
+
+            public static ISimpleDbDomainName<SimpleDbBasedStoreTest.TestDataClass> DomainForTestDataClass
+            {
+                get => _domainForTestDataClass ??= new SimpleDbDomainName<SimpleDbBasedStoreTest.TestDataClass>("integrationtests");
             }
 
             private static IAmazonSimpleDB Initialize()
@@ -34,12 +46,12 @@ namespace IdentityServer.unittests.DataAccess
                 var simpleDbClient = new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), RegionEndpoint.EUWest1);
                 var result = simpleDbClient.ListDomainsAsync();
                 result.Wait(TimeSpan.FromSeconds(30));
-                if (result.Result.DomainNames.Contains(DomainForTest.DomainName))
+                if (result.Result.DomainNames.Contains(DomainForTestDataClass.DomainName))
                 {
-                    simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTest.DomainName)).Wait();
+                    simpleDbClient.DeleteDomainAsync(new DeleteDomainRequest(DomainForTestDataClass.DomainName)).Wait();
                 }
 
-                simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTest.DomainName)).Wait();
+                simpleDbClient.CreateDomainAsync(new CreateDomainRequest(DomainForTestDataClass.DomainName)).Wait();
                 return simpleDbClient;
             }
         }
@@ -51,11 +63,11 @@ namespace IdentityServer.unittests.DataAccess
         public SimpleDbUserStoreTests()
         {
             var testUserStore = new SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>(SimpleDbUserStoreTestsSetup.SimpleDbClient.Value,
-                SimpleDbUserStoreTestsSetup.DomainForTest,
+                SimpleDbUserStoreTestsSetup.DomainForTestUser,
                 new TestUserConverter());
             var userInfoStore = new SimpleDbBasedStore<UserInformation>(
                     SimpleDbUserStoreTestsSetup.SimpleDbClient.Value,
-                    SimpleDbUserStoreTestsSetup.DomainForTest,
+                    SimpleDbUserStoreTestsSetup.DomainForUserInformation,
                     new UserInfoConverter());
             _subject = new SimpleDbUserStore(_pwdFunctions.Object, testUserStore, userInfoStore);
         }

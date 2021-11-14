@@ -38,17 +38,14 @@ your area of interest.
 - For any frontend code we recommend React or similar framework, but frontend is not the focus area
 of this case
 - Solution must be designed to run on Amazon Web Services or Azure
-- You should use no more time than you find reasonable, we do not expect a fully complete solution.
--  are more interested in the choices you make along the way
+- You should use no more time than you find reasonable, we do not expect a fully complete solution. We are more interested in the choices you make along the way
 - Presentation must take no more than 25 minutes - including time for questions
-- pected outcome:
+# Expected outcome:
 - Short presentation of the solution
 - Explain what OpenID Connect is to product owner
 - Explain what OpenID Connect is to a developer
 - Explain what certified library you know the best and you would recommend?
-
-
-# Context and Container level diagrams of the solution in the C4 format (https://c4model.com)
+- Context and Container level diagrams of the solution in the C4 format (https://c4model.com)
 - Explanation of grant types (flow). Which should be used when and when not?
 - Explanation of choice of user flow for web
 - Explanation of choice of user flow if the solution is used from a mobile app

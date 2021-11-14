@@ -11,7 +11,7 @@ It will create one single ECS cluster, an LB and listeners for each service. We 
 vpc with vpc endpoint and rather laxed SGs (no nacl). 
 
 Certificate validation and DNS setup is in the domain mfaester.dk as I did not own a domain 
-delegated to AWS. 
+delegated to AWS. DNS config is manual.  
 
 ## Preparations 
 IdentityServer need some key material for signing its tokens. This is stored in SecretsManager under `secrets/main_rsa_key` 
@@ -31,8 +31,10 @@ IdentityServer need some key material for signing its tokens. This is stored in 
 ```
 
 # Project 
-Standard example project from ID4 with UI example added. Modifications on handling keys (above). We use hard coded configuration to avoid setting 
-up a database. 
+# idp - Identity provider
+Standard example project from ID4 with UI example added. Modifications on handling keys (above). We use hard coded configuration to avoid setting up a database. (EF is relatively easy, but still need some preparation and not least some sql server in RDS which is expensive for a toy project. I have used simpledb for user storage and in the other API's, but this non-relational database system is not easily setup for ID4s configuration database.)
+
+
 
 
 # User handling 
@@ -48,3 +50,10 @@ Use
 
 
 Credentials are assumed to be present in `~/.aws/credentials` under the profile `mfaester`.
+
+# Manual tests 
+Obtain a token using client credentials: 
+```
+ curl -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=client_credentials&client_id=convention-reader&scope=convention-admin" -u "convention-reader:secret01"  https://identity-server.mfaester.dk/connect/token 
+```
+This emulates server-to-server invokations.

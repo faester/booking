@@ -164,7 +164,7 @@ resource aws_autoscaling_group booking {
   capacity_rebalance   = true
   desired_capacity     = 0
   max_size             = 5
-  min_size             = 1
+  min_size             = 2
   vpc_zone_identifier  = [data.aws_subnet.subnet_a.id, data.aws_subnet.subnet_b.id]
   termination_policies = ["OldestInstance"]
 

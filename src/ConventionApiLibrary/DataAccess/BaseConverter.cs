@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 using Amazon.SimpleDB.Model;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace IdentityServer.DataAccess
+namespace ConventionApiLibrary.DataAccess
 {
-    public abstract class BaseConverter<T>
+    public abstract class BaseConverter<T> : ISimpleDbConverter<T>
     {
         private readonly Func<string, T> _factory;
         private readonly Func<T, string> _idPicker;
@@ -18,6 +18,11 @@ namespace IdentityServer.DataAccess
         {
             _factory = factory;
             _idPicker = idPicker;
+        }
+
+        public string GetSimpleDbFieldNameFor(Expression<Func<T, object>> dtoField)
+        {
+            return GetSimpleDbName(dtoField);
         }
 
         public T CreateInstance(string identifier)
@@ -42,7 +47,7 @@ namespace IdentityServer.DataAccess
 
         public void AddFieldMapping<V>(string simpleDbName,
             Action<T, string> mapping,
-            Func<T, string> accessor, 
+            Func<T, string> accessor,
             Expression<Func<T, V>> selector)
         {
             if (simpleDbName == null)

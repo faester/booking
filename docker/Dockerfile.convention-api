@@ -1,0 +1,6 @@
+FROM convention-api-build:local as build
+FROM mcr.microsoft.com/dotnet/aspnet:3.1
+RUN mkdir /app
+WORKDIR app
+COPY --from=build /src/convention-api/bin/Release/netcoreapp3.1/ ./
+ENTRYPOINT ["dotnet", "/app/convention-api.dll" ]

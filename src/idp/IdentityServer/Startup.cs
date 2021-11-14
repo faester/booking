@@ -3,19 +3,21 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
-using ConventionApiLibrary;
+using Amazon.SQS;
+using ConventionApiLibrary.DataAccess;
 using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
 using IdentityServer.Quickstart.Account;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -39,11 +41,6 @@ namespace IdentityServer
             // uncomment, if you want to add an MVC-based UI
             services.AddControllersWithViews();
 
-            services.AddDataProtection(options =>
-            {
-                options.ApplicationDiscriminator = "idp";
-            });
-
             var builder = services.AddIdentityServer(options =>
             {
                 // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
@@ -56,15 +53,21 @@ namespace IdentityServer
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
             services.AddScoped<SimpleDbBasedStore<UserInformation>>();
+            services.AddScoped<SimpleDbBasedStore<PersistedGrant>>();
+            services.AddScoped<ISimpleDbConverter<PersistedGrant>, PersistedGrantConverter>();
             services.AddScoped<SimpleDbUserStore>();
-            services.AddScoped<ISimpleDbDomainName>(ctxt => new SimpleDbDomainName("users"));
+            services.AddScoped<ISimpleDbDomainName<SimpleDbUserStore.TestUserDto>>(ctxt => new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("users"));
+            services.AddScoped<ISimpleDbDomainName<UserInformation>>(ctxt => new SimpleDbDomainName<UserInformation>("userinformation"));
+            services.AddScoped<ISimpleDbDomainName<PersistedGrant>>(ctxt => new SimpleDbDomainName<PersistedGrant>("grants"));
             services.AddScoped<SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>>();
             services.AddScoped<ISimpleDbConverter<SimpleDbUserStore.TestUserDto>, TestUserConverter>();
             services.AddScoped<ISimpleDbConverter<UserInformation>, UserInfoConverter>();
             services.AddScoped<IPasswordFunctions, BCryptPasswordFunctions>();
             services.AddScoped<IPersistedGrantStore, SimpleDbPersistedGrantStore>();
             services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
-
+            services.AddScoped<IEventService, SqsEventService>(ctxt =>
+                    new SqsEventService(new AmazonSQSClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region),
+                new Uri("https://sqs.eu-west-1.amazonaws.com/539839626842/booking-audit-events")));
             services.AddSingleton<IXmlRepository, SsmDataprotection>(sers => new SsmDataprotection("/idp/ixmlrepository/", CreateSsmClient()));
         }
 
@@ -105,34 +108,6 @@ namespace IdentityServer
             {
                 endpoints.MapDefaultControllerRoute();
             });
-        }
-    }
-
-    public class SimpleDbPersistedGrantStore : IPersistedGrantStore
-    {
-        public Task StoreAsync(PersistedGrant grant)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<PersistedGrant> GetAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveAllAsync(PersistedGrantFilter filter)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -1,5 +1,5 @@
 resource aws_ecs_task_definition service {
-  family = "booking"
+  family = var.docker_image
   container_definitions = jsonencode([
     {
       name      = var.subdomain
@@ -53,6 +53,9 @@ resource aws_ecs_service service {
     weight            = 1
   }
 
+  deployment_maximum_percent = 200
+  deployment_minimum_healthy_percent = 0
+
   lifecycle {
     ignore_changes = [desired_count]
   }
@@ -66,7 +69,6 @@ resource aws_iam_role_policy_attachment ecs_service {
 
 resource "aws_lb_listener_rule" "connect" {
   listener_arn = var.listener_arn
-  priority     = 100
 
   action {
     type             = "forward"
@@ -86,6 +88,7 @@ resource aws_lb_target_group tg {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
+  deregistration_delay = 20
   health_check {
     interval = 10
     matcher  = "200,404"

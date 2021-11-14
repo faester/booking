@@ -3,37 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Amazon.Runtime.Internal;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace ConventionApiLibrary
+namespace ConventionApiLibrary.DataAccess
 {
-    public interface ISimpleDbConverter<T>
-    {
-        T Translate(string itemName, List<Attribute> itemAttributes);
-        string GetItemName(T item);
-        void PopulateValues(T item, List<ReplaceableAttribute> attributes, List<Attribute> deletes);
-        string GetSimpleDbFieldNameFor(Expression<Func<T, object>> dtoField);
-        T CreateInstance(string name);
-    }
-
-    public interface ISimpleDbDomainName
-    {
-        string DomainName { get; }
-    }
-    
-    public class SimpleDbDomainName : ISimpleDbDomainName
-    {
-        public SimpleDbDomainName(string domainName)
-        {
-            DomainName = domainName;
-        }
-
-        public string DomainName { get; }
-    }
-
     public class SimpleDbBasedStore<T> where T : class
     {
         private readonly IAmazonSimpleDB _simpleDbClient;
@@ -41,7 +16,7 @@ namespace ConventionApiLibrary
         private readonly ISimpleDbConverter<T> _converter;
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(3);
 
-        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, ISimpleDbDomainName domainName, ISimpleDbConverter<T> converter)
+        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, ISimpleDbDomainName<T> domainName, ISimpleDbConverter<T> converter)
         {
             _simpleDbClient = simpleDbClient;
             _domainName = domainName.DomainName;
@@ -61,31 +36,6 @@ namespace ConventionApiLibrary
             }
 
             return _converter.Translate(itemName, item.Result.Attributes);
-        }
-
-        public T SelectFromSdbWithSingleResult(string sdbQuery)
-        {
-            var request = new SelectRequest
-            {
-                SelectExpression = sdbQuery
-            };
-            var retrievalTask = _simpleDbClient.SelectAsync(request);
-
-            retrievalTask.Wait(_timeout);
-
-            if (retrievalTask.Result.Items.Count == 0)
-            {
-                return null;
-            }
-
-            if (retrievalTask.Result.Items.Count > 1)
-            {
-                throw new ArgumentException("More than one match.");
-            }
-
-            var item = retrievalTask.Result.Items[0];
-
-            return _converter.Translate(retrievalTask.Result.Items[0].Name, item.Attributes);
         }
 
         public async Task DeleteByItemName(string subjectId)
@@ -133,38 +83,64 @@ namespace ConventionApiLibrary
             }
         }
 
-
-        private void AddForUpdateOrDelete(string attributeName, string value, List<ReplaceableAttribute> updateList, List<Attribute> deleteList)
+        public FilterBuilder Where(Expression<Func<T, object>> dtoField, string filterValue)
         {
-            if (value == null)
-            {
-                deleteList.Add(new Attribute(attributeName, null));
-            }
-            else
-            {
-                updateList.Add(new ReplaceableAttribute(attributeName, value, true));
-            }
+            return new FilterBuilder(dtoField, filterValue, _timeout, _converter, _domainName, _simpleDbClient);
         }
 
-        public IEnumerable<T> SelectItemsBySimpleFilter(Expression<Func<T, object>> dtoField, string filterValue)
+        public class FilterBuilder
         {
-            var usernameField = _converter.GetSimpleDbFieldNameFor(dtoField);
-            filterValue = filterValue.Replace("'", "''");
-            var query = $"SELECT * FROM `{_domainName}` WHERE `{usernameField}` = \"{filterValue}\"";
-            var request = new SelectRequest(query, false);
+            private readonly Expression<Func<T, object>> _dtoField;
+            private readonly string _filterValue;
+            private readonly TimeSpan _timeout;
+            private readonly ISimpleDbConverter<T> _converter;
+            private readonly string _domainName;
+            private readonly IAmazonSimpleDB _simpleDbClient;
+            private readonly FilterBuilder _parent;
+            private readonly string _dtoFieldNameInSimpleDb;
 
-            do
+            public FilterBuilder(Expression<Func<T, object>> dtoField, string filterValue, TimeSpan timeout, ISimpleDbConverter<T> converter, string domainName, IAmazonSimpleDB simpleDbClient,
+                FilterBuilder parent = null)
             {
-                var result = _simpleDbClient.SelectAsync(request);
-                result.Wait(_timeout);
+                _dtoField = dtoField;
+                _filterValue = filterValue.Replace("'", "''");
+                _timeout = timeout;
+                _converter = converter;
+                _domainName = domainName;
+                _simpleDbClient = simpleDbClient;
+                _parent = parent;
+                _dtoFieldNameInSimpleDb = _converter.GetSimpleDbFieldNameFor(_dtoField);
+            }
 
-                foreach (var item in result.Result.Items)
+            public FilterBuilder AndAlso(Expression<Func<T, object>> dtoField, string filterValue)
+            {
+                return new FilterBuilder(dtoField, filterValue, _timeout, _converter, _domainName, _simpleDbClient, this);
+            }
+
+            public IEnumerable<T> Select()
+            {
+                var query = $"SELECT * FROM `{_domainName}` WHERE `{_dtoFieldNameInSimpleDb}` = \"{_filterValue}\"";
+                var current = this;
+                while (current._parent != null)
                 {
-                    yield return _converter.Translate(item.Name, item.Attributes);
+                    query += $" AND `{_parent._dtoFieldNameInSimpleDb}` = \"{_parent._filterValue}\"";
+                    current = current._parent;
                 }
+                var request = new SelectRequest(query, false);
 
-                request.NextToken = result.Result.NextToken;
-            } while (request.NextToken != null);
+                do
+                {
+                    var result = _simpleDbClient.SelectAsync(request);
+                    result.Wait(_timeout);
+
+                    foreach (var item in result.Result.Items)
+                    {
+                        yield return _converter.Translate(item.Name, item.Attributes);
+                    }
+
+                    request.NextToken = result.Result.NextToken;
+                } while (request.NextToken != null);
+            }
         }
     }
 }

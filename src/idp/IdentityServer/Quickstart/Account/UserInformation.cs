@@ -6,11 +6,7 @@ namespace IdentityServer.Quickstart.Account
 {
     public class UserInformation
     {
-        public string SubjectId
-        {
-            get;
-            set;
-        }
+        public string SubjectId { get; set; }
 
         [Required]
         [RegularExpression(pattern: @"[a-z0-9_.-]+@[a-z0-9_.-]+\.[a-z]{2,}", ErrorMessage = "Email does not look like an e-mail")]
@@ -22,6 +18,10 @@ namespace IdentityServer.Quickstart.Account
 
         [Required]
         public string Address { get; set; }
+
+        public bool IsAdministrator { get; set; }
+        public bool IsSpeaker { get; set; }
+        public bool IsValidatedUser { get; set; }
 
         public IEnumerable<Claim> GetClaims()
         {
@@ -38,6 +38,19 @@ namespace IdentityServer.Quickstart.Account
             if (Phone != null)
             {
                 yield return new Claim("phone", Phone);
+            }
+
+            if (IsAdministrator)
+            {
+                yield return new Claim("role", "administrator");
+            }
+            if (IsSpeaker)
+            {
+                yield return new Claim("role", "speaker");
+            }
+            if (IsValidatedUser)
+            {
+                yield return new Claim("role", "validated_user");
             }
         }
     }
