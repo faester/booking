@@ -22,18 +22,22 @@ namespace IdentityServer
             new ApiScope[]
             {
                 new ApiScope("convention-admin", "Administrate conventions"),
-                new ApiScope("read")
+                new ApiScope("convention-read", "Read convention data"),
             };
 
         public static IEnumerable<Client> Clients =>
-            new Client[]
+            new[]
             {
-        new Client {
-            ClientId = "convention-reader",
-            ClientSecrets = new Secret[0],
-            AllowedScopes = { "convention-admin" },
-
-        }
+                new Client {
+                    ClientId = "convention-reader",
+                    ClientSecrets = new Secret[]{new Secret("secret01", "This secret is not that secret", null)},
+                    AllowedScopes = { "convention-admin", "convention-read" },
+                    AccessTokenType = AccessTokenType.Jwt,
+                    AllowAccessTokensViaBrowser = true,
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    AccessTokenLifetime = 3600,
+                    AuthorizationCodeLifetime = 300,
+                }
             };
     }
 }
