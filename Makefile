@@ -40,4 +40,4 @@ publish: build_docker_images tag_for_ecr
 stop-tasks:  terraform_docker
 	docker run -t --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local /home/terraform/bin/stop-tasks.sh
 
-deploy: stop-tasks publish
+deploy: publish stop-tasks 
