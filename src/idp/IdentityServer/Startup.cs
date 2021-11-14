@@ -2,15 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using System.Security.Cryptography;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
+using Amazon.SQS;
 using ConventionApiLibrary.DataAccess;
 using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
 using IdentityServer.Quickstart.Account;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
@@ -52,15 +57,21 @@ namespace IdentityServer
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
             services.AddScoped<SimpleDbBasedStore<UserInformation>>();
+            services.AddScoped<SimpleDbBasedStore<PersistedGrant>>();
+            services.AddScoped<ISimpleDbConverter<PersistedGrant>, PersistedGrantConverter>();
             services.AddScoped<SimpleDbUserStore>();
-            services.AddScoped<ISimpleDbDomainName>(ctxt => new SimpleDbDomainName("users"));
+            services.AddScoped<ISimpleDbDomainName<SimpleDbUserStore.TestUserDto>>(ctxt => new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("users"));
+            services.AddScoped<ISimpleDbDomainName<UserInformation>>(ctxt => new SimpleDbDomainName<UserInformation>("userinformation"));
+            services.AddScoped<ISimpleDbDomainName<PersistedGrant>>(ctxt => new SimpleDbDomainName<PersistedGrant>("grants"));
             services.AddScoped<SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>>();
             services.AddScoped<ISimpleDbConverter<SimpleDbUserStore.TestUserDto>, TestUserConverter>();
             services.AddScoped<ISimpleDbConverter<UserInformation>, UserInfoConverter>();
             services.AddScoped<IPasswordFunctions, BCryptPasswordFunctions>();
             services.AddScoped<IPersistedGrantStore, SimpleDbPersistedGrantStore>();
             services.AddScoped<IAmazonSimpleDB, AmazonSimpleDBClient>(service => new AmazonSimpleDBClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region));
-
+            services.AddScoped<IEventService, SqsEventService>(ctxt =>
+                    new SqsEventService(new AmazonSQSClient(SecretsRetriever.GetCredentials(), SecretsRetriever.Region),
+                new Uri("https://sqs.eu-west-1.amazonaws.com/539839626842/booking-audit-events")));
             services.AddSingleton<IXmlRepository, SsmDataprotection>(sers => new SsmDataprotection("/idp/ixmlrepository/", CreateSsmClient()));
         }
 

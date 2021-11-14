@@ -16,7 +16,7 @@ namespace ConventionApiLibrary.DataAccess
         private readonly ISimpleDbConverter<T> _converter;
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(3);
 
-        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, ISimpleDbDomainName domainName, ISimpleDbConverter<T> converter)
+        public SimpleDbBasedStore(IAmazonSimpleDB simpleDbClient, ISimpleDbDomainName<T> domainName, ISimpleDbConverter<T> converter)
         {
             _simpleDbClient = simpleDbClient;
             _domainName = domainName.DomainName;

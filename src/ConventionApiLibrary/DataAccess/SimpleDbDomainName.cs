@@ -1,6 +1,6 @@
 ﻿namespace ConventionApiLibrary.DataAccess
 {
-    public class SimpleDbDomainName : ISimpleDbDomainName
+    public class SimpleDbDomainName<T> : ISimpleDbDomainName<T>
     {
         public SimpleDbDomainName(string domainName)
         {

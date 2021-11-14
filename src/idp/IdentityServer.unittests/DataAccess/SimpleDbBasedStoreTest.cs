@@ -11,7 +11,7 @@ namespace IdentityServer.unittests.DataAccess
     {
         SimpleDbBasedStore<TestDataClass> _subject = new SimpleDbBasedStore<TestDataClass>(
             SimpleDbUserStoreTests.SimpleDbUserStoreTestsSetup.SimpleDbClient.Value,
-            SimpleDbUserStoreTests.SimpleDbUserStoreTestsSetup.DomainForTest,
+            SimpleDbUserStoreTests.SimpleDbUserStoreTestsSetup.DomainForTestDataClass,
             new TestDataClassConverter());
 
         public class TestDataClass
