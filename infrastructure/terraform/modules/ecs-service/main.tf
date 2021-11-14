@@ -69,7 +69,6 @@ resource aws_iam_role_policy_attachment ecs_service {
 
 resource "aws_lb_listener_rule" "connect" {
   listener_arn = var.listener_arn
-  priority     = 100
 
   action {
     type             = "forward"

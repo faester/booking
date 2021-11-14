@@ -7,7 +7,9 @@ build_dotnet_core_projects:
 	dotnet build src
 
 build_docker_images: 
+	docker build . -f docker/Dockerfile.build -t convention-api:local
 	docker build . -f docker/Dockerfile.identityserver -t identity-server:local
+	docker build . -f docker/Dockerfile.convention-api -t convention-api:local
 
 build: build_dotnet_core_projects
 
@@ -32,10 +34,12 @@ terraform-shell: terraform_docker
 
 tag_for_ecr: build_docker_images
 	docker tag identity-server:local 539839626842.dkr.ecr.eu-west-1.amazonaws.com/identity-server:latest
+	docker tag convention-api:local 539839626842.dkr.ecr.eu-west-1.amazonaws.com/convention-api:latest
 
 publish: build_docker_images tag_for_ecr
 	docker run -ti --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local aws ecr get-login-password --region eu-west-1 --profile mfaester |docker login --username AWS --password-stdin 539839626842.dkr.ecr.eu-west-1.amazonaws.com
 	docker push 539839626842.dkr.ecr.eu-west-1.amazonaws.com/identity-server:latest
+	docker push 539839626842.dkr.ecr.eu-west-1.amazonaws.com/convention-api:latest
 
 stop-tasks:  terraform_docker
 	docker run -t --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local /home/terraform/bin/stop-tasks.sh
