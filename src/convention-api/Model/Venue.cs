@@ -4,9 +4,23 @@ using convention_api.Clients.BreweryClient;
 
 namespace convention_api.Model
 {
+    public class VenueBooking
+    {
+        [DataMember(Name = "capacity")]
+        public int Capacity { get; set; }
+        
+        [DataMember(Name = "venue_id")]
+        public string VenueId { get; set; }
+
+        [DataMember(Name = "event_date")]
+        public DateTime DateForEvent { get; set; }
+    }
+
     [DataContract]
     public class Venue
     {
+        [DataMember(Name = "id")]
+        public string Id { get; set; }
         [DataMember(Name = "name")]
         public string Name { get; set; }
         [DataMember(Name = "capacity")]
@@ -30,6 +44,7 @@ namespace convention_api.Model
                 Name = brewery.Name,
                 StreetAddress = brewery.Street,
                 State = brewery.State,
+                Id = brewery.Id,
             };
         }
 

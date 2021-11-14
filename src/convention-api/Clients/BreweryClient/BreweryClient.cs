@@ -48,7 +48,7 @@ namespace convention_api.Clients.BreweryClient
             return element;
         }
 
-        public Task<Brewery> GetBreweryById(long id)
+        public Task<Brewery> GetBreweryById(string id)
         {
             string cacheKey = nameof(CachingBreweryClient) + nameof(GetBreweryById) + id;
             return GetFromCacheOrInsert(cacheKey, () => _cachedClient.GetBreweryById(id));
@@ -92,9 +92,9 @@ namespace convention_api.Clients.BreweryClient
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<Brewery> GetBreweryById(long id)
+        public async Task<Brewery> GetBreweryById(string id)
         {
-            var body = await GetContent("/breweries/" + id);
+            var body = await GetContent("/breweries/" + HttpUtility.UrlEncode(id));
 
             return JsonConvert.DeserializeObject<Brewery>(body);
         }
