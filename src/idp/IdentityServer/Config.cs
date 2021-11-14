@@ -31,7 +31,7 @@ namespace IdentityServer
                 new Client {
                     ClientId = "convention-reader",
                     ClientName = "convention-reader",
-                    ClientSecrets = new Secret[]{new Secret("secret01", "This secret is not that secret", null)},
+                    ClientSecrets = new Secret[]{new Secret("secret01".Sha256(), "This secret is not that secret", null)},
                     AllowedScopes = { "convention-admin", "convention-read" },
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowAccessTokensViaBrowser = true,
