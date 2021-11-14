@@ -94,6 +94,7 @@ namespace IdentityServer.DataAccess
         {
             username = CanonicalizeUsername(username);
             return _simpleDbStore.SelectItemsBySimpleFilter(x => x.Username, username)
+                .Select()
                 .FirstOrDefault()
                 ?.ToTestUser();
         }

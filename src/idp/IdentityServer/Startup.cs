@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
 using ConventionApiLibrary.DataAccess;
@@ -13,7 +10,6 @@ using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;
 using IdentityServer.Quickstart.Account;
-using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
@@ -105,34 +101,6 @@ namespace IdentityServer
             {
                 endpoints.MapDefaultControllerRoute();
             });
-        }
-    }
-
-    public class SimpleDbPersistedGrantStore : IPersistedGrantStore
-    {
-        public Task StoreAsync(PersistedGrant grant)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<PersistedGrant> GetAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveAllAsync(PersistedGrantFilter filter)
-        {
-            throw new NotImplementedException();
         }
     }
 }

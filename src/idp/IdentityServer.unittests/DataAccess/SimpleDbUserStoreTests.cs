@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
+using ConventionApiLibrary.DataAccess;
 using FluentAssertions;
 using IdentityServer.DataAccess;
 using IdentityServer.Quickstart.Account;
