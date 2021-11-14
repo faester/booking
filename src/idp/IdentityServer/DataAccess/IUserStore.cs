@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
-using IdentityServerHost.Quickstart.UI;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public interface IUserStore
     {
@@ -18,7 +18,7 @@ namespace IdentityServer.Quickstart
         TestUser FindByUsername(string username);
         Task Store(TestUser user);
 
-        Task StoreUserInformation(string subjectId, UserInformation signupViewModel);
+        Task StoreUserInformation(UserInformation signupViewModel);
         Task<UserInformation> GetUserInformation(string subjectId);
     }
 }

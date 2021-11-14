@@ -1,7 +1,6 @@
-﻿using System;
-using BCrypt.Net;
+﻿using BCrypt.Net;
 
-namespace IdentityServer.Quickstart
+namespace IdentityServer.DataAccess
 {
     public class BCryptPasswordFunctions : IPasswordFunctions
     {
