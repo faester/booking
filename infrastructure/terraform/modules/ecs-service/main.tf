@@ -53,6 +53,9 @@ resource aws_ecs_service service {
     weight            = 1
   }
 
+  deployment_maximum_percent = 200
+  deployment_minimum_healthy_percent = 0
+
   lifecycle {
     ignore_changes = [desired_count]
   }
@@ -86,6 +89,7 @@ resource aws_lb_target_group tg {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
+  deregistration_delay = 20
   health_check {
     interval = 10
     matcher  = "200,404"
