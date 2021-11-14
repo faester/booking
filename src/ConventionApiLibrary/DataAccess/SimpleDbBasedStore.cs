@@ -3,37 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Amazon.Runtime.Internal;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace ConventionApiLibrary
+namespace ConventionApiLibrary.DataAccess
 {
-    public interface ISimpleDbConverter<T>
-    {
-        T Translate(string itemName, List<Attribute> itemAttributes);
-        string GetItemName(T item);
-        void PopulateValues(T item, List<ReplaceableAttribute> attributes, List<Attribute> deletes);
-        string GetSimpleDbFieldNameFor(Expression<Func<T, object>> dtoField);
-        T CreateInstance(string name);
-    }
-
-    public interface ISimpleDbDomainName
-    {
-        string DomainName { get; }
-    }
-    
-    public class SimpleDbDomainName : ISimpleDbDomainName
-    {
-        public SimpleDbDomainName(string domainName)
-        {
-            DomainName = domainName;
-        }
-
-        public string DomainName { get; }
-    }
-
     public class SimpleDbBasedStore<T> where T : class
     {
         private readonly IAmazonSimpleDB _simpleDbClient;

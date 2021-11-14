@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleSystemsManagement;
-using ConventionApiLibrary;
+using ConventionApiLibrary.DataAccess;
 using IdentityServer.DataAccess;
 using IdentityServer.DataProtection;
 using IdentityServer.Quickstart;

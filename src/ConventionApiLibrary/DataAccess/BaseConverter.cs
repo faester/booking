@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using Amazon.SimpleDB.Model;
 using Attribute = Amazon.SimpleDB.Model.Attribute;
 
-namespace IdentityServer.DataAccess
+namespace ConventionApiLibrary.DataAccess
 {
     public abstract class BaseConverter<T>
     {
@@ -42,7 +42,7 @@ namespace IdentityServer.DataAccess
 
         public void AddFieldMapping<V>(string simpleDbName,
             Action<T, string> mapping,
-            Func<T, string> accessor, 
+            Func<T, string> accessor,
             Expression<Func<T, V>> selector)
         {
             if (simpleDbName == null)
