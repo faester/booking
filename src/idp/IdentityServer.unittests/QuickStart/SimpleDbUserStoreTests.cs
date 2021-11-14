@@ -9,6 +9,7 @@ using Amazon.SimpleDB.Model;
 using Xunit;
 using FluentAssertions;
 using IdentityServer.Quickstart;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
 using IdentityServerHost.Quickstart.UI;
 using Moq;

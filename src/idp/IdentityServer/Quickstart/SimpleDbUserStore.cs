@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Amazon.SimpleDB;
 using Amazon.SimpleDB.Model;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
 using IdentityServerHost.Quickstart.UI;
 using Newtonsoft.Json;

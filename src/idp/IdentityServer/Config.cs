@@ -11,25 +11,29 @@ namespace IdentityServer
     {
         public static IEnumerable<IdentityResource> IdentityResources =>
             new IdentityResource[]
-            { 
-                new IdentityResources.OpenId()
+            {
+                new IdentityResources.OpenId(),
+                new IdentityResources.Address(),
+                new IdentityResources.Phone(),
+                new IdentityResources.Email(),
             };
 
         public static IEnumerable<ApiScope> ApiScopes =>
             new ApiScope[]
             {
-		new ApiScope("convention-admin", "Administrate conventions"), 
-		 
-	    };
+                new ApiScope("convention-admin", "Administrate conventions"),
+                new ApiScope("read")
+            };
 
         public static IEnumerable<Client> Clients =>
-            new Client[] 
+            new Client[]
             {
-		new Client {
-			ClientId = "convention-reader",
-			ClientSecrets = new Secret[0],
-			AllowedScopes = { "convention-admin" },
-		}
+        new Client {
+            ClientId = "convention-reader",
+            ClientSecrets = new Secret[0],
+            AllowedScopes = { "convention-admin" },
+
+        }
             };
     }
 }

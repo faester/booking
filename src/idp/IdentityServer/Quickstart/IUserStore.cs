@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using IdentityServer.Quickstart.Account;
 using IdentityServer4.Test;
 using IdentityServerHost.Quickstart.UI;
 
