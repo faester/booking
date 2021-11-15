@@ -29,19 +29,19 @@ namespace convention_website.Controllers
         [Authorize(Policy = PolicyNames.Administration)]
         public IActionResult Administrator()
         {
-            return Content("Administrator", "text/plain");
+            return View();
         }
 
         [Authorize(Policy = PolicyNames.SpeakerAccess)]
         public IActionResult Speaker()
         {
-            return Content("Speaker", "text/plain");
+            return View();
         }
 
         [Authorize(Policy = PolicyNames.ValidatedUserAccess)]
         public IActionResult Private()
         {
-            return Content("Logged in user", "text/plain");
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
