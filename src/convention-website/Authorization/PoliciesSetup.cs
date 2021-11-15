@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -58,7 +59,7 @@ namespace convention_website.Authorization
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SpeakerRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == "role" && claim.Value == "speaker"))
+            if (context.User.HasClaim(claim => claim.Type == ClaimTypes.Role && claim.Value == "speaker"))
             {
                 context.Succeed(requirement);
             }
@@ -75,7 +76,7 @@ namespace convention_website.Authorization
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ValidatedUserRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == "role" && claim.Value == "validated_user"))
+            if (context.User.HasClaim(claim => claim.Type == ClaimTypes.Role && claim.Value == "validated_user"))
             {
                 context.Succeed(requirement);
             }
@@ -92,7 +93,7 @@ namespace convention_website.Authorization
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AdministratorRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == "role" && claim.Value == "administrator"))
+            if (context.User.HasClaim(claim => claim.Type == ClaimTypes.Role && claim.Value == "administrator"))
             {
                 context.Succeed(requirement);
             }
