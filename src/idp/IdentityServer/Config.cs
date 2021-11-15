@@ -4,22 +4,24 @@
 
 using IdentityServer4.Models;
 using System.Collections.Generic;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace IdentityServer
 {
     public static class Config
     {
         public static IEnumerable<IdentityResource> IdentityResources =>
-            new IdentityResource[]
+            new[]
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Address(),
                 new IdentityResources.Phone(),
                 new IdentityResources.Email(),
+                new IdentityResource("role","Roles and user status", new []{"role"}),
             };
 
         public static IEnumerable<ApiScope> ApiScopes =>
-            new ApiScope[]
+            new[]
             {
                 new ApiScope("convention-admin", "Administrate conventions"),
                 new ApiScope("convention-read", "Read convention data"),
@@ -38,6 +40,26 @@ namespace IdentityServer
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AccessTokenLifetime = 3600,
                     AuthorizationCodeLifetime = 300,
+                },
+                new Client {
+                    ClientId = "convention-website",
+                    ClientName = "convention-website",
+                    ClientSecrets = new Secret[]{},
+                    AllowedScopes =
+                    {
+                        "openid", "name", "role", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
+                    },
+                    Enabled =true,
+                    AccessTokenType = AccessTokenType.Jwt,
+                    AllowAccessTokensViaBrowser = true,
+                    AllowedGrantTypes = GrantTypes.Code,
+                    AccessTokenLifetime = 3600,
+                    AuthorizationCodeLifetime = 300,
+                    RequireClientSecret = false,
+                    RedirectUris = new []{
+                        "https://convention-website.mfaester.dk/signin-oidc", 
+                        "https://localhost:44316/signin-oidc",
+                    }
                 }
             };
     }

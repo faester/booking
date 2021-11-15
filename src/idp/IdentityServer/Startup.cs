@@ -53,12 +53,12 @@ namespace IdentityServer
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
             services.AddScoped<SimpleDbBasedStore<UserInformation>>();
-            services.AddScoped<SimpleDbBasedStore<PersistedGrant>>();
-            services.AddScoped<ISimpleDbConverter<PersistedGrant>, PersistedGrantConverter>();
+            services.AddScoped<SimpleDbBasedStore<PersistedGrantDto>>();
+            services.AddScoped<ISimpleDbConverter<PersistedGrantDto>, PersistedGrantDtoConverter>();
             services.AddScoped<SimpleDbUserStore>();
             services.AddScoped<ISimpleDbDomainName<SimpleDbUserStore.TestUserDto>>(ctxt => new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("users"));
             services.AddScoped<ISimpleDbDomainName<UserInformation>>(ctxt => new SimpleDbDomainName<UserInformation>("userinformation"));
-            services.AddScoped<ISimpleDbDomainName<PersistedGrant>>(ctxt => new SimpleDbDomainName<PersistedGrant>("grants"));
+            services.AddScoped<ISimpleDbDomainName<PersistedGrantDto>>(ctxt => new SimpleDbDomainName<PersistedGrantDto>("grants"));
             services.AddScoped<SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>>();
             services.AddScoped<ISimpleDbConverter<SimpleDbUserStore.TestUserDto>, TestUserConverter>();
             services.AddScoped<ISimpleDbConverter<UserInformation>, UserInfoConverter>();

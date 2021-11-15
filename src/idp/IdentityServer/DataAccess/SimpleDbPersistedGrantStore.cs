@@ -11,26 +11,27 @@ namespace IdentityServer.DataAccess
 {
     public class SimpleDbPersistedGrantStore : IPersistedGrantStore
     {
-        private SimpleDbBasedStore<PersistedGrant> _grantStore;
+        private SimpleDbBasedStore<PersistedGrantDto> _grantStore;
 
-        public SimpleDbPersistedGrantStore(SimpleDbBasedStore<PersistedGrant> grantStore)
+        public SimpleDbPersistedGrantStore(SimpleDbBasedStore<PersistedGrantDto> grantStore)
         {
             _grantStore = grantStore;
         }
 
         public Task StoreAsync(PersistedGrant grant)
         {
-            return _grantStore.Store(grant);
+            return _grantStore.Store(PersistedGrantDto.FromPersistedGrant(grant));
         }
 
-        public Task<PersistedGrant> GetAsync(string key)
+        public async Task<PersistedGrant> GetAsync(string key)
         {
-            return Task.FromResult(_grantStore.FindByItemName(key));
+            var dto = await Task.FromResult(_grantStore.FindByItemName(key));
+            return dto.ToPersistedGrant();
         }
 
         public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
-            List<(Expression<Func<PersistedGrant, object>>, string)> conditions = new List<(Expression<Func<PersistedGrant, object>>, string)>();
+            List<(Expression<Func<PersistedGrantDto, object>>, string)> conditions = new List<(Expression<Func<PersistedGrantDto, object>>, string)>();
 
             if (!string.IsNullOrEmpty(filter.ClientId))
             {
@@ -60,7 +61,7 @@ namespace IdentityServer.DataAccess
                 where = where.AndAlso(conditions[i].Item1, conditions[i].Item2);
             }
 
-            return Task.FromResult(where.Select());
+            return Task.FromResult(where.Select().Select(x => x.ToPersistedGrant()));
         }
 
         public Task RemoveAsync(string key)
