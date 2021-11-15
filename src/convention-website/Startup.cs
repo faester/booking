@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace convention_website
@@ -58,6 +59,15 @@ namespace convention_website
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            var forwardHeaderSettings = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto,
+            };
+            forwardHeaderSettings.KnownNetworks.Clear();
+            forwardHeaderSettings.AllowedHosts.Clear();
+            app.UseForwardedHeaders(forwardHeaderSettings);
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
