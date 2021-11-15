@@ -34,11 +34,6 @@ namespace IdentityServer.DataAccess
                 g => g.CreationTime.ToString("O"),
                 g => g.CreationTime
             );
-            AddFieldMapping("Data",
-                (g, v) => g.Data = v,
-                g => g.Data,
-                g => g.Data
-            );
             AddFieldMapping("Description",
                 (g, v) => g.Description = v,
                 g => g.Description,
