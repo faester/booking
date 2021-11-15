@@ -54,6 +54,7 @@ namespace IdentityServer
                     AllowAccessTokensViaBrowser = true,
                     AllowedGrantTypes = GrantTypes.Code,
                     AccessTokenLifetime = 3600,
+                    AlwaysIncludeUserClaimsInIdToken = true,
                     AuthorizationCodeLifetime = 300,
                     RequireClientSecret = false,
                     RedirectUris = new []{

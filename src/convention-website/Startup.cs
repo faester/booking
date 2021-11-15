@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.JsonWebTokens;
+using convention_website.Authorization;
+
 
 namespace convention_website
 {
@@ -41,9 +43,16 @@ namespace convention_website
                     opts.Scope.Add("openid");
                     opts.UsePkce = true;
                     opts.ClientSecret = null;
+                    opts.GetClaimsFromUserInfoEndpoint = true;
                     opts.ResponseType = "code";
                     opts.CallbackPath = "/signin-oidc";
                 });
+
+            services.AddAuthorization(opts =>
+            {
+                opts.EnablePolicies();
+                ;
+            }).RegisterAuthorizationHandlers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
