@@ -50,6 +50,7 @@ namespace IdentityServer
                         "openid", "name", "role", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
                     },
                     Enabled =true,
+                    RequirePkce = false,
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowAccessTokensViaBrowser = true,
                     AllowedGrantTypes = GrantTypes.Code,

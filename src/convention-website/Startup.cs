@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.JsonWebTokens;
 using convention_website.Authorization;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 
 
 namespace convention_website
@@ -44,8 +45,9 @@ namespace convention_website
                     opts.UsePkce = true;
                     opts.ClientSecret = null;
                     opts.GetClaimsFromUserInfoEndpoint = true;
-                    opts.ResponseType = "code";
+                    opts.ResponseType = "code id_token";
                     opts.CallbackPath = "/signin-oidc";
+                    opts.ClaimActions.Add(new MapAllClaimsAction());
                 });
 
             services.AddAuthorization(opts =>
