@@ -57,7 +57,7 @@ namespace IdentityServer
                     AuthorizationCodeLifetime = 300,
                     RequireClientSecret = false,
                     RedirectUris = new []{
-                        "https://consent-website.mfaester.dk/signin-oidc", 
+                        "https://convention-website.mfaester.dk/signin-oidc", 
                         "https://localhost:44316/signin-oidc",
                     }
                 }
