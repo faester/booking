@@ -49,9 +49,10 @@ namespace IdentityServer
                     {
                         "openid", "name", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
                     },
+                    Enabled =true,
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowAccessTokensViaBrowser = true,
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    AllowedGrantTypes = GrantTypes.Code,
                     AccessTokenLifetime = 3600,
                     AuthorizationCodeLifetime = 300,
                     RedirectUris = new []{

@@ -31,7 +31,7 @@ namespace convention_website
                 {
                     opts.MetadataAddress = "https://identity-server.mfaester.dk/.well-known/openid-configuration";
                     opts.AuthenticationMethod = OpenIdConnectRedirectBehavior.FormPost;
-                    opts.ClientId = "consent-website";
+                    opts.ClientId = "convention-website";
                     opts.Scope.Clear();
                     opts.Scope.Add(JwtRegisteredClaimNames.Email);
                     opts.Scope.Add(JwtRegisteredClaimNames.GivenName);
@@ -40,6 +40,9 @@ namespace convention_website
                     opts.Scope.Add("role");
                     opts.Scope.Add("openid");
                     opts.UsePkce = true;
+                    opts.ClientSecret = null;
+                    opts.ResponseType = "code token id_token";
+                    opts.CallbackPath = "/signin-oidc";
                 });
         }
 
