@@ -38,7 +38,7 @@ tag_for_ecr: build_docker_images
 	docker tag convention-api:local 539839626842.dkr.ecr.eu-west-1.amazonaws.com/convention-api:latest
 	docker tag convention-website:local 539839626842.dkr.ecr.eu-west-1.amazonaws.com/convention-website:latest
 
-publish: build_docker_images tag_for_ecr
+publish: build_docker_images tag_for_ecr terraform_docker
 	docker run -ti --mount type=bind,source=$(shell pwd),target=/home/terraform/booking --mount type=bind,source=$(shell echo ~)/.ssh/,target=/home/terraform/.ssh --mount type=bind,source=$(shell echo ~)/.aws/,target=/home/terraform/.aws  booking_terraform:local aws ecr get-login-password --region eu-west-1 --profile mfaester |docker login --username AWS --password-stdin 539839626842.dkr.ecr.eu-west-1.amazonaws.com
 	docker push 539839626842.dkr.ecr.eu-west-1.amazonaws.com/identity-server:latest
 	docker push 539839626842.dkr.ecr.eu-west-1.amazonaws.com/convention-api:latest
