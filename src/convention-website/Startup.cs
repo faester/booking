@@ -25,8 +25,9 @@ namespace convention_website
             services.AddAuthentication(opts =>
                 {
                     opts.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    opts.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     opts.DefaultChallengeScheme = "oidc";
-                }).AddCookie()
+                }).AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddOpenIdConnect("oidc", opts =>
                 {
                     opts.MetadataAddress = "https://identity-server.mfaester.dk/.well-known/openid-configuration";
