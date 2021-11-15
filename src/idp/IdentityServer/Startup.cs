@@ -58,7 +58,7 @@ namespace IdentityServer
             services.AddScoped<SimpleDbUserStore>();
             services.AddScoped<ISimpleDbDomainName<SimpleDbUserStore.TestUserDto>>(ctxt => new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("users"));
             services.AddScoped<ISimpleDbDomainName<UserInformation>>(ctxt => new SimpleDbDomainName<UserInformation>("userinformation"));
-            services.AddScoped<ISimpleDbDomainName<PersistedGrant>>(ctxt => new SimpleDbDomainName<PersistedGrant>("grants"));
+            services.AddScoped<ISimpleDbDomainName<PersistedGrantDto>>(ctxt => new SimpleDbDomainName<PersistedGrantDto>("grants"));
             services.AddScoped<SimpleDbBasedStore<SimpleDbUserStore.TestUserDto>>();
             services.AddScoped<ISimpleDbConverter<SimpleDbUserStore.TestUserDto>, TestUserConverter>();
             services.AddScoped<ISimpleDbConverter<UserInformation>, UserInfoConverter>();
