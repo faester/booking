@@ -5,7 +5,7 @@ using IdentityServer.Quickstart.Account;
 
 namespace IdentityServer.DataAccess
 {
-    public class UserInfoConverter : BaseConverter<UserInformation>, ISimpleDbConverter<UserInformation>
+    public class UserInfoConverter : BaseConverter<UserInformation>
     {
         public UserInfoConverter() 
             : base(x => new UserInformation{SubjectId = x}, ui => ui.SubjectId)
