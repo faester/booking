@@ -34,14 +34,12 @@ namespace convention_website
                     opts.ClientId = "convention-website";
                     opts.Scope.Clear();
                     opts.Scope.Add(JwtRegisteredClaimNames.Email);
-                    opts.Scope.Add(JwtRegisteredClaimNames.GivenName);
-                    opts.Scope.Add(JwtRegisteredClaimNames.FamilyName);
                     opts.Scope.Add("phone");
                     opts.Scope.Add("role");
                     opts.Scope.Add("openid");
                     opts.UsePkce = true;
                     opts.ClientSecret = null;
-                    opts.ResponseType = "code token id_token";
+                    opts.ResponseType = "code";
                     opts.CallbackPath = "/signin-oidc";
                 });
         }

@@ -47,7 +47,7 @@ namespace IdentityServer
                     ClientSecrets = new Secret[]{},
                     AllowedScopes =
                     {
-                        "openid", "name", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
+                        "openid", "name", "role", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
                     },
                     Enabled =true,
                     AccessTokenType = AccessTokenType.Jwt,
@@ -55,6 +55,7 @@ namespace IdentityServer
                     AllowedGrantTypes = GrantTypes.Code,
                     AccessTokenLifetime = 3600,
                     AuthorizationCodeLifetime = 300,
+                    RequireClientSecret = false,
                     RedirectUris = new []{
                         "https://consent-website.mfaester.dk/signin-oidc", 
                         "https://localhost:44316/signin-oidc",
