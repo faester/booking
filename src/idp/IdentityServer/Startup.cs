@@ -53,8 +53,8 @@ namespace IdentityServer
             builder.AddSigningCredential(CreateSigningCredentials());
             services.AddScoped<IUserStore, SimpleDbUserStore>();
             services.AddScoped<SimpleDbBasedStore<UserInformation>>();
-            services.AddScoped<SimpleDbBasedStore<PersistedGrant>>();
-            services.AddScoped<ISimpleDbConverter<PersistedGrant>, PersistedGrantConverter>();
+            services.AddScoped<SimpleDbBasedStore<PersistedGrantDto>>();
+            services.AddScoped<ISimpleDbConverter<PersistedGrantDto>, PersistedGrantDtoConverter>();
             services.AddScoped<SimpleDbUserStore>();
             services.AddScoped<ISimpleDbDomainName<SimpleDbUserStore.TestUserDto>>(ctxt => new SimpleDbDomainName<SimpleDbUserStore.TestUserDto>("users"));
             services.AddScoped<ISimpleDbDomainName<UserInformation>>(ctxt => new SimpleDbDomainName<UserInformation>("userinformation"));
