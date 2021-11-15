@@ -26,7 +26,7 @@ namespace IdentityServer.DataAccess
         public async Task<PersistedGrant> GetAsync(string key)
         {
             var dto = await Task.FromResult(_grantStore.FindByItemName(key));
-            return dto.ToPersistedGrant();
+            return dto?.ToPersistedGrant();
         }
 
         public Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)

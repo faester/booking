@@ -1,11 +1,8 @@
 ﻿using convention_website.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using convention_website.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace convention_website.Controllers
@@ -29,10 +26,22 @@ namespace convention_website.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorize(Policy = PolicyNames.Administration)]
+        public IActionResult Administrator()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = PolicyNames.SpeakerAccess)]
+        public IActionResult Speaker()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = PolicyNames.ValidatedUserAccess)]
         public IActionResult Private()
         {
-            return Content("Now you know", "text/plain");
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

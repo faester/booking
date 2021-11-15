@@ -50,10 +50,14 @@ namespace IdentityServer
                         "openid", "name", "role", "address", "phone", JwtRegisteredClaimNames.Email, JwtRegisteredClaimNames.GivenName, JwtRegisteredClaimNames.FamilyName
                     },
                     Enabled =true,
+                    RequirePkce = false,
                     AccessTokenType = AccessTokenType.Jwt,
                     AllowAccessTokensViaBrowser = true,
-                    AllowedGrantTypes = GrantTypes.Code,
+                    AllowedGrantTypes = GrantTypes.Hybrid,
                     AccessTokenLifetime = 3600,
+                    RequireConsent = true, 
+                    AllowRememberConsent = true,
+                    AlwaysIncludeUserClaimsInIdToken = true,
                     AuthorizationCodeLifetime = 300,
                     RequireClientSecret = false,
                     RedirectUris = new []{
