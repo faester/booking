@@ -43,7 +43,7 @@ module convention_api {
 }
 
 module convention_website {
-  source     = "../../services/convention-api"
+  source     = "../../services/convention-website"
   vpc_id     = local.vpc_id
   account_id = data.aws_caller_identity.current.account_id
 }
