@@ -17,7 +17,6 @@ namespace IdentityServer
                 new IdentityResources.Address(),
                 new IdentityResources.Phone(),
                 new IdentityResources.Email(),
-                new IdentityResources.OpenId(),
                 new IdentityResource("role","Roles and user status", new []{"role"}),
             };
 
